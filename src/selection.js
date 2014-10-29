@@ -8,6 +8,12 @@ var assert = util.assert;
 
 module.exports = Selection;
 
+/**
+ * Abstraction over the editor selection, exposing
+ * methods in terms of Point objects, and providing
+ * facilities to manipulate, save, restore the
+ * selection, across DOM modifications.
+ */
 function Selection(nativeSelection) {
   var me = this;
 

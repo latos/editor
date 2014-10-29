@@ -2,6 +2,10 @@
 
 var util = require('./util');
 
+/**
+ * Expands regular DOM events into a richer set of high-level
+ * semantic editing events that are more convenient to consume.
+ */
 module.exports = function EventExpander(bus) {
   var me = this;
 

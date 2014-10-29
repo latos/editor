@@ -7,6 +7,21 @@ var END    = 'end';
 var BEFORE = 'before';
 var AFTER  = 'after';
 
+/**
+ * A class that represents a location in the DOM, offering
+ * a more convenient interface to traverse, mutate, compare
+ * locations, etc, abstracting away the fairly fiddly code
+ * normally needed for complex low-level DOM manipulations.
+ *
+ * Points offer a semi-opaque abstraction over the multiple
+ * ways a particular DOM location can be represented. 
+ *
+ * For example, when comparing points, the "start" of a 
+ * paragraph, a point "before" its first text node, and 
+ * a point at offset 0 of the first text node, are all considered 
+ * equivalent -- althought, the differences in representation
+ * are accessible if needed.
+ */
 module.exports = Point;
 
 Point.text = text;
@@ -21,26 +36,44 @@ Point.check = checkPoint;
 
 var magic = 'xx';
 
+/**
+ * A point at the given character offset within a text node
+ */
 function text(textNode, offset) {
   return new Point(magic).moveToText(textNode, offset);
 }
 
+/**
+ * A point inside the start of an element
+ */
 function start(elem) {
   return new Point(magic).moveToStart(elem);
 }
 
+/**
+ * A point inside the end of an element
+ */
 function end(elem) {
   return new Point(magic).moveToEnd(elem);
 }
 
+/**
+ * A point before a node
+ */
 function before(node) {
   return new Point(magic).moveToBefore(node);
 }
 
+/**
+ * A point after a node
+ */
 function after(node) {
   return new Point(magic).moveToAfter(node);
 }
 
+/**
+ * A point equivalent to that represented by the standard browser node/offset pair idiom
+ */
 function fromNodeOffset(node, offset) {
   if (node.nodeType === 3) {
     return text(node, offset);
@@ -60,6 +93,10 @@ function ofArgs(args) {
   return of(args[0], args[1]);
 }
 
+/**
+ * An all-purpose adapter of either a Point, a node/offset pair, or
+ * a node/node pair
+ */
 function of(x, y) {
   if (x instanceof Point) {
     assert(y === undefined);
@@ -145,6 +182,9 @@ Point.prototype.enterNext = function() {
   return this.moveToStart(this.node);
 };
 
+/**
+ * Returns a standard browser node/offset pair as a two element array.
+ */
 Point.prototype.toNodeOffset = function() {
   switch (this.type) {
     case TEXT: return [this.node, this.offset];
@@ -160,6 +200,9 @@ Point.prototype.toNodeOffset = function() {
   }
 };
 
+/**
+ * The index of the given node within its parent's children
+ */
 function childIndex(child) {
   var elem = child.parentNode;
   var children = elem.childNodes;
@@ -187,6 +230,9 @@ Point.prototype.ensureInsertable = function() {
   return this;
 };
 
+/**
+ * Inserts the given node at this point.
+ */
 Point.prototype.insert = function(node) {
   var pair = this
     .ensureInsertable()
@@ -196,6 +242,9 @@ Point.prototype.insert = function(node) {
   pair[0].insertBefore(node, pair[0].childNodes[pair[1]]);
 };
 
+/**
+ * Adjusts the internal representation to be right-biased,
+ */
 Point.prototype.normalizeRight = function() {
   this.leaveTextNode(false);
   if (this.type == TEXT) {
@@ -225,6 +274,15 @@ Point.prototype.isWithin = function(elem) {
   assert(false, 'unimplemented');
 };
 
+/**
+ * Returns a negative number if this point is before the
+ * other point in depth-first dom-traversal order, positive
+ * if it is after, or zero if the two points are equivalent.
+ *
+ * NB that a point at the "start" of a paragraph, a point
+ * "before" its first text node, and a point at offset 0 of
+ * the first text node, are all considered equivalent.
+ */
 Point.prototype.compare = function(point) {
   Point.check(point);
 

@@ -5,6 +5,9 @@ Range.collapsed = function(point) {
   return new Range(point, point);
 };
 
+/**
+ * A pair of Points, representing a range.
+ */
 function Range(anchor, focus) {
   this.anchor = Point.check(anchor);
   this.focus = Point.check(focus);
@@ -18,6 +21,9 @@ Range.prototype.copy = function() {
   return new Range(this.anchor, this.focus);
 };
 
+/**
+ * True if the focus comes after (or is equivalent to) the anchor.
+ */
 Range.prototype.isOrdered = function() {
   return this.anchor.compare(this.focus) <= 0;
 };
