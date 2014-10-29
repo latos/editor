@@ -37,6 +37,7 @@ exports.isOrHasChild = function(elem, maybeChild) {
  *   'same'   - if node1 is node2
  *   assertion error - if nodes are not in same tree
  */
+// TODO: maybe use compareDocumentPosition
 exports.compareNodes = function(node1, node2) {
   var path1 = nodePath(node1);
   var path2 = nodePath(node2);
