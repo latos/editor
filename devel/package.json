@@ -1,0 +1,9 @@
+{
+  "name": "editor-devel",
+  "description": "editor devel",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "webpack": "1.4.9"
+  }
+}
