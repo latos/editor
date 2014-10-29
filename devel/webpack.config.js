@@ -1,7 +1,6 @@
 module.exports = {
-  entry: '../src/editor.js',
+  entry: './demo.js',
   output: {
-    path: __dirname + '/build',
-    filename: 'editor.js'
+    filename: 'demo.js'
   }
 };

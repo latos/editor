@@ -1,10 +1,68 @@
 <!doctype html>
 <html>
 <head>
-  <script type='application/javascript' src='/editor.js'></script>
+  <script type='application/javascript' src='/demo.js'></script>
+  <style>
+    html {
+      box-sizing: border-box;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      font-family: sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+    }
+
+    #editor-panel,
+    #debug-panel {
+      position: fixed;
+      padding: 40px;
+    }
+    #editor-panel {
+      top: 0; left: 0; width: 50%; bottom: 0;
+    }
+    #debug-panel {
+      top: 0; right: 0; width: 50%; bottom: 0;
+    }
+
+    #editor, .info-box {
+      border: 1px solid silver;
+      border-radius: 5px;
+    }
+    .info-box {
+      padding: 20px;
+      background: #f4f4f4;
+    }
+
+    #editor {
+      box-shadow: 0px 0px 6px #ddd inset;
+      padding: 0 20px;
+    }
+
+    #editor p {
+      margin: 20px 0;
+    }
+
+    #content {
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 <body>
-      sup
+    <div id='editor-panel'>
+      <div id='editor'>
+        <h2>My title</h2>
+        <p>My text</p>
+      </div>
+    </div>
+    <div id='debug-panel'>
+      <div id='content' class='info-box'></div>
+    </div>
 
 </body>
 </html>
