@@ -4,9 +4,10 @@ var util = require('./util');
 
 /**
  * Expands regular DOM events into a richer set of high-level
- * semantic editing events that are more convenient to consume.
+ * semantic editing events that are more convenient to consume,
+ * and routes them to the context-appropriate handler.
  */
-module.exports = function EventExpander(bus) {
+module.exports = function EventRouter(bus) {
   var me = this;
 
 
@@ -27,6 +28,9 @@ module.exports = function EventExpander(bus) {
   };
 
   me.handlers = {
+    mousedown: wrap(function(e) {
+    }),
+
     keydown: wrap(function(e) {
     }),
     keypress: wrap(function(e) {

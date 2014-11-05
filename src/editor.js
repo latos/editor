@@ -1,6 +1,6 @@
 var util = require('./util');
 var EventBus = require('./event-bus');
-var EventExpander = require('./editing-events');
+var EventRouter = require('./event-router');
 var Selection = require('./selection');
 
 /**
@@ -19,7 +19,7 @@ module.exports = function Editor() {
   var currentElem = null;
 
   var bus = new EventBus();
-  var expander = new EventExpander(bus);
+  var expander = new EventRouter(bus);
 
   var selection = new Selection(window.getSelection());
 
@@ -31,6 +31,8 @@ module.exports = function Editor() {
   me.selection = function() {
     return selection;
   };
+
+  var detacher;
   
   /**
    * Attaches the editor to an element
@@ -42,9 +44,7 @@ module.exports = function Editor() {
     elem.contentEditable = true;
     elem.style.outline = 'none';
 
-    for (var type in expander.handlers) {
-      elem.addEventListener(type, expander.handlers[type]);
-    }
+    detacher = attachHandlers(elem, expander.handlers);
 
     bus.post('attached');
   };
@@ -57,11 +57,11 @@ module.exports = function Editor() {
       return;
     }
 
-    for (var type in expander.handlers) {
-      currentElem.removeEventListener(type, expander.handlers[type]);
-    }
+    assert(detacher);
 
-    currentElem.contentEditable = '';
+    detacher();
+
+    currentElem.contentEditable = 'inherit';
     bus.post('detached');
 
     currentElem = null;
@@ -98,6 +98,47 @@ module.exports = function Editor() {
 
   /** See EventBus.addListener */
   me.addListener = bus.addListener;
+
+  // -- private -- //
+
+  /**
+   * Registers a map of handlers to an element after wrapping each one, 
+   * and returns a function for unregistering them.
+   */
+  function attachHandlers(elem, handlerMap) {
+    var registered = {};
+
+    for (var type in handlerMap) {
+      var wrapped = registered[type] = wrapHandler(handlerMap[type]);
+      elem.addEventListener(type, wrapped);
+    }
+
+    return function() {
+      for (var type in registered) {
+        elem.removeEventListener(type, registered[type]);
+      }
+    };
+  }
+
+  function wrapHandler(func) {
+    return function(ev) {
+      beforeEvent();
+      try {
+        func(ev);
+
+        // TODO: error handling
+      } finally {
+        afterEvent();
+      }
+    };
+  }
+
+  // TODO: use these to cache things like selection, for optimisation.
+  function beforeEvent() {
+  }
+
+  function afterEvent() {
+  }
 }
 
 
