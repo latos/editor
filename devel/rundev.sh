@@ -1,3 +1,8 @@
 #!/bin/bash
 
-webpack-dev-server --progress --colors --port 3456
+PORT=3456
+
+echo "Starting webpack server on port $PORT"
+echo
+
+webpack-dev-server --progress --colors --port $PORT
