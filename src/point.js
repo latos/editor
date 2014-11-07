@@ -270,6 +270,34 @@ Point.prototype.normalizeRight = function() {
   return this;
 };
 
+Point.prototype.isAtElemStart = function() {
+  if (this.type === TEXT) {
+    return this.offset === 0 && util.isFirstChild(this.node);
+  } else if (this.type === BEFORE) {
+    return util.isFirstChild(this.node);
+  } else if (this.type === START) {
+    return true;
+  } else if (this.type === END) {
+    return !this.node.firstChild;
+  } else {
+    return false;
+  }
+};
+
+Point.prototype.isAtElemEnd = function() {
+  if (this.type === TEXT) {
+    return this.offset === this.node.length && util.isLastChild(this.node);
+  } else if (this.type === AFTER) {
+    return util.isLastChild(this.node);
+  } else if (this.type === END) {
+    return true;
+  } else if (this.type === START) {
+    return !this.node.firstChild;
+  } else {
+    return false;
+  }
+};
+
 Point.prototype.isWithin = function(elem) {
   assert(false, 'unimplemented');
 };

@@ -28,13 +28,6 @@ describe('Point', function() {
       var t = i.firstChild;
       var b = p.lastChild;
 
-      var point1 = Point.start(p);
-      var point2 = Point.text(t, 1);
-      var point3 = Point.text(t, 2);
-      var point4 = Point.text(t, 3);
-      var point5 = Point.after(i);
-      var point6 = Point.before(b);
-
       expectBefore(Point.start(p), Point.text(t, 1));
       expectAfter(Point.text(t, 1), Point.start(p));
       expectEquivalent(Point.start(p), Point.before(i));
@@ -51,6 +44,53 @@ describe('Point', function() {
       expectEquivalent(Point.text(t, 3), Point.end(i));
 
       expectEquivalent(Point.after(i), Point.before(b));
+    })
+  }));
+
+  it('should detect element start and end', promised(function() {
+    return dom('<p><i>sup</i><b>blah</b></p>', function(elem) {
+      var p = elem;
+      var i = p.firstChild;
+      var t = i.firstChild;
+      var b = p.lastChild;
+
+      expect(Point.start(p).isAtElemStart()).toBe(true);
+      expect(Point.before(i).isAtElemStart()).toBe(true);
+      expect(Point.before(t).isAtElemStart()).toBe(true);
+      expect(Point.text(t, 0).isAtElemStart()).toBe(true);
+      expect(Point.text(t, 1).isAtElemStart()).toBe(false);
+      expect(Point.after(i).isAtElemStart()).toBe(false);
+      expect(Point.before(b).isAtElemStart()).toBe(false);
+    })
+  }));
+
+  it('should detect element start and end', promised(function() {
+    return dom('<p><i>sup</i><b>blah</b><span></span></p>', function(elem) {
+      var p = elem;
+      var i = p.firstChild;
+      var t = i.firstChild;
+      var b = i.nextSibling;
+      var s = p.lastChild;
+
+      expect(Point.start(p).isAtElemStart()).toBe(true);
+      expect(Point.end(p).isAtElemStart()).toBe(false);
+      expect(Point.before(i).isAtElemStart()).toBe(true);
+      expect(Point.before(t).isAtElemStart()).toBe(true);
+      expect(Point.text(t, 0).isAtElemStart()).toBe(true);
+      expect(Point.text(t, 1).isAtElemStart()).toBe(false);
+      expect(Point.after(i).isAtElemStart()).toBe(false);
+      expect(Point.before(b).isAtElemStart()).toBe(false);
+      expect(Point.start(s).isAtElemStart()).toBe(true);
+      expect(Point.end(s).isAtElemStart()).toBe(true);
+
+      expect(Point.start(p).isAtElemEnd()).toBe(false);
+      expect(Point.end(p).isAtElemEnd()).toBe(true);
+      expect(Point.after(s).isAtElemEnd()).toBe(true);
+      expect(Point.start(s).isAtElemEnd()).toBe(true);
+      expect(Point.end(s).isAtElemEnd()).toBe(true);
+      expect(Point.text(t, 0).isAtElemEnd()).toBe(false);
+      expect(Point.text(t, 2).isAtElemEnd()).toBe(false);
+      expect(Point.text(t, 3).isAtElemEnd()).toBe(true);
     })
   }));
 });

@@ -28,6 +28,14 @@ exports.isOrHasChild = function(elem, maybeChild) {
   return false;
 };
 
+exports.isFirstChild = function(node) {
+  return node.parentNode && !node.previousSibling;
+};
+
+exports.isLastChild = function(node) {
+  return node.parentNode && !node.nextSibling;
+};
+
 /**
  * returns:
  *   'parent' - if node1 is parent of node2
