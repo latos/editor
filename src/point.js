@@ -289,31 +289,39 @@ Point.prototype.leftNormalized = function() {
   return p;
 };
 
-Point.prototype.isAtElemStart = function() {
+/**
+ * Returns the containing element, if the point is at its start
+ * otherwise null.
+ */
+Point.prototype.elemStartingAt = function() {
   if (this.type === TEXT) {
-    return this.offset === 0 && util.isFirstChild(this.node);
+    return this.offset === 0 && util.isFirstChild(this.node) || null;
   } else if (this.type === BEFORE) {
     return util.isFirstChild(this.node);
   } else if (this.type === START) {
-    return true;
+    return this.node;
   } else if (this.type === END) {
-    return !this.node.firstChild;
+    return this.node.firstChild ? null : this.node;
   } else {
-    return false;
+    return null;
   }
 };
 
-Point.prototype.isAtElemEnd = function() {
+/**
+ * Returns the containing element, if the point is at its end
+ * otherwise null.
+ */
+Point.prototype.elemEndingAt = function() {
   if (this.type === TEXT) {
-    return this.offset === this.node.length && util.isLastChild(this.node);
+    return this.offset === this.node.length && util.isLastChild(this.node) || null;
   } else if (this.type === AFTER) {
     return util.isLastChild(this.node);
   } else if (this.type === END) {
-    return true;
+    return this.node;
   } else if (this.type === START) {
-    return !this.node.firstChild;
+    return this.node.firstChild ? null : this.node;
   } else {
-    return false;
+    return null;
   }
 };
 
