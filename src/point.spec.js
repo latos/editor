@@ -93,6 +93,66 @@ describe('Point', function() {
       expect(Point.text(t, 3).isAtElemEnd()).toBe(true);
     })
   }));
+
+  it('should detect before/after elem/text', promised(function() {
+    return dom('<p><i>sup</i><b>blah</b><span></span></p>', function(elem) {
+      var p = elem;
+      var i = p.firstChild;
+      var t = i.firstChild;
+      var b = i.nextSibling;
+      var s = p.lastChild;
+      var t1 = b.firstChild;
+      var t2 = b.firstChild.splitText(2);
+
+      function expectRelatives(point, prev, next, textOffset) {
+        var originalType = point.type;
+        var originalNode = point.node;
+        var originalOffset = point.offset;
+
+        if (textOffset === undefined) {
+          expect(point.nodeBefore()).toBe(prev);
+          expect(point.nodeAfter()).toBe(next);
+
+          expect(point.elemBefore()).toBe(prev && prev.nodeType == 1 ? prev : null);
+          expect(point.elemAfter()).toBe(next && next.nodeType == 1 ? next : null);
+
+          expect(point.hasTextBefore()).toBe(!!(prev && prev.nodeType == 3));
+          expect(point.hasTextAfter()).toBe(!!(next && next.nodeType == 3));
+        } else {
+          expect(point.nodeBefore()).toBe(null);
+          expect(point.nodeAfter()).toBe(null);
+
+          expect(point.elemBefore()).toBe(null);
+          expect(point.elemAfter()).toBe(null);
+
+          expect(point.hasTextAfter()).toBe(true);
+          expect(point.hasTextBefore()) .toBe(true);
+        }
+
+        // check the point wasn't mutated.
+        expect(point.type).toBe(originalType);
+        expect(point.node).toBe(originalNode);
+        expect(point.offset).toBe(originalOffset);
+      }
+
+      expectRelatives(Point.start(p), null, i);
+      expectRelatives(Point.before(i), null, i);
+      expectRelatives(Point.start(i), null, t);
+      expectRelatives(Point.before(t), null, t);
+      expectRelatives(Point.text(t, 0), null, t);
+      expectRelatives(Point.text(t, 1), null, null, 1);
+      expectRelatives(Point.text(t, 3), t, null);
+      expectRelatives(Point.after(t), t, null);
+      expectRelatives(Point.after(i), i, b);
+      expectRelatives(Point.after(t1), t1, t2);
+      expectRelatives(Point.text(t1, 2), t1, t2);
+      expectRelatives(Point.before(t2), t1, t2);
+      expectRelatives(Point.text(t2, 0), t1, t2);
+      expectRelatives(Point.start(s), null, null);
+      expectRelatives(Point.end(s), null, null);
+      expectRelatives(Point.end(p), s, null);
+    })
+  }));
 });
 
 function expectBefore(point1, point2) {

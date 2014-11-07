@@ -167,21 +167,6 @@ Point.prototype.moveToAfter = function(node) {
   return this;
 };
 
-Point.prototype.elemAfter = function() {
-  return ensureElem(this.nodeAfter());
-};
-Point.prototype.nodeAfter = function() {
-  this.leaveTextNode();
-};
-
-Point.prototype.enterNext = function() {
-  this.leaveTextNode(true);
-  this.normalizeRight();
-  assert(this.type === BEFORE, 'nothing on the right to enter', this);
-
-  return this.moveToStart(this.node);
-};
-
 /**
  * Returns a standard browser node/offset pair as a two element array.
  */
@@ -233,41 +218,75 @@ Point.prototype.ensureInsertable = function() {
 /**
  * Inserts the given node at this point.
  */
-Point.prototype.insert = function(node) {
-  var pair = this
-    .ensureInsertable()
-    .leaveTextNode(true)
-    .toNodeOffset();
+Point.prototype.insert = function(newChild) {
+  var p = this.rightNormalized();
 
-  pair[0].insertBefore(node, pair[0].childNodes[pair[1]]);
+  if (p.type === TEXT) {
+    p.node.parentNode.insertBefore(newChild, p.node.splitText(p.offset));
+  } else if (p.type === BEFORE) {
+    p.node.parentNode.insertBefore(newChild, p.node);
+  } else if (p.type === END) {
+    p.node.appendChild(newChild);
+  } else {
+    assert(false);
+  }
 };
 
 /**
  * Adjusts the internal representation to be right-biased,
  */
-Point.prototype.normalizeRight = function() {
-  this.leaveTextNode(false);
-  if (this.type == TEXT) {
-    return this;
-  } else if (this.type == AFTER) {
-    var next = this.node.nextSibling;
+Point.prototype.rightNormalized = function() {
+  var p = this.nodeNormalized();
+
+  if (p.type == TEXT) {
+    return p;
+  } else if (p.type == AFTER) {
+    var next = p.node.nextSibling;
     if (next) {
-      return this.moveToBefore(next);
+      return before(next);
     } else {
-      return this.moveToEnd(this.node.parentNode);
+      return end(p.node.parentNode);
     }
-  } else if (this.type == START) {
-    var child = this.node.firstChild;
+  } else if (p.type == START) {
+    var child = p.node.firstChild;
     if (child) {
-      return this.moveToBefore(child);
+      return before(child);
     } else {
-      return this.moveToEnd(this.node);
+      return end(p.node);
     }
   }
 
-  assert(this.type === BEFORE || this.type === END);
+  assert(p.type === BEFORE || p.type === END);
 
-  return this;
+  return p;
+};
+
+/**
+ * Adjusts the internal representation to be left-biased,
+ */
+Point.prototype.leftNormalized = function() {
+  var p = this.nodeNormalized();
+  if (p.type == TEXT) {
+    return p;
+  } else if (p.type == BEFORE) {
+    var prev = p.node.previousSibling;
+    if (prev) {
+      return after(prev);
+    } else {
+      return start(p.node.parentNode);
+    }
+  } else if (p.type == END) {
+    var child = p.node.lastChild;
+    if (child) {
+      return after(child);
+    } else {
+      return start(p.node);
+    }
+  }
+
+  assert(p.type === AFTER || p.type === START);
+
+  return p;
 };
 
 Point.prototype.isAtElemStart = function() {
@@ -298,6 +317,52 @@ Point.prototype.isAtElemEnd = function() {
   }
 };
 
+Point.prototype.nodeBefore = function() {
+  var left = this.leftNormalized();
+  switch (left.type) {
+    case TEXT: return null;
+    case START: return null;
+    case AFTER: return left.node;
+    default: assert(false);
+  }
+};
+Point.prototype.elemBefore = function() {
+  var node = this.nodeBefore();
+  return node && node.nodeType === 1 ? node : null;
+};
+Point.prototype.hasTextBefore = function() {
+  var left = this.leftNormalized();
+  switch (left.type) {
+    case TEXT: return true;
+    case START: return false;
+    case AFTER: return left.node.nodeType === 3;
+    default: assert(false);
+  }
+};
+
+Point.prototype.nodeAfter = function() {
+  var right = this.rightNormalized();
+  switch (right.type) {
+    case TEXT: return null;
+    case END: return null;
+    case BEFORE: return right.node;
+    default: assert(false);
+  }
+};
+Point.prototype.elemAfter = function() {
+  var node = this.nodeAfter();
+  return node && node.nodeType === 1 ? node : null;
+};
+Point.prototype.hasTextAfter = function() {
+  var right = this.rightNormalized();
+  switch (right.type) {
+    case TEXT: return true;
+    case END: return false;
+    case BEFORE: return right.node.nodeType === 3;
+    default: assert(false);
+  }
+};
+
 Point.prototype.isWithin = function(elem) {
   assert(false, 'unimplemented');
 };
@@ -314,10 +379,10 @@ Point.prototype.isWithin = function(elem) {
 Point.prototype.compare = function(point) {
   Point.check(point);
 
-  this.normalizeRight();
-  point.normalizeRight();
+  var p1 = this.rightNormalized();
+  var p2 = point.rightNormalized();
 
-  var relationship = util.compareNodes(this.node, point.node);
+  var relationship = util.compareNodes(p1.node, p2.node);
   if (relationship == 'before') {
     return -1;
   }
@@ -325,20 +390,20 @@ Point.prototype.compare = function(point) {
     return 1;
   }
   if (relationship == 'parent') {
-    return this.type !== END ? -1 : 1;
+    return p1.type !== END ? -1 : 1;
   }
   if (relationship == 'child') {
-    return point.type === END ? -1 : 1;
+    return p2.type === END ? -1 : 1;
   }
   if (relationship == 'same') {
-    if (this.type === TEXT && point.type === TEXT) {
-      return this.offset - point.offset;
-    } else if (this.type === TEXT) {
+    if (p1.type === TEXT && p2.type === TEXT) {
+      return p1.offset - p2.offset;
+    } else if (p1.type === TEXT) {
       return 1;
-    } else if (point.type === TEXT) {
+    } else if (p2.type === TEXT) {
       return -1;
     } else {
-      assert(this.type === point.type, this.type, '!=', point.type);
+      assert(p1.type === p2.type, p1.type, '!=', p2.type);
       return 0;
     }
   }
@@ -347,23 +412,19 @@ Point.prototype.compare = function(point) {
 };
 
 /**
- * Moves the point out of text nodes, into the gap between them
- * If the point is in the middle (not at the edge) of a text node,
- * then an error occurs if requested by mustLeave.
- * Use ensureInsertable() first to avoid this.
+ * Returns new point out of text nodes, into the gap between them
+ * if possible. If deep in a text node, returns original. If already
+ * a node point, returns self.
  */
-Point.prototype.leaveTextNode = function(mustLeave) {
+Point.prototype.nodeNormalized = function(mustLeave) {
   if (this.type == TEXT) {
     if (this.offset === 0) {
-      return this.moveToBefore(this.node);
+      return before(this.node);
     }
     if (this.offset === this.node.length) {
-      return this.moveToAfter(this.node);
+      return after(this.node);
     }
-    if (mustLeave) {
-      throw new Error('Cannot leave from middle of text node ' + 
-          this.node + ':' + this.offset);
-    }
+    assert(this.offset > 0 && this.offset < this.node.length);
   }
 
   return this;
@@ -376,6 +437,28 @@ Point.prototype.copy = function() {
   point.offset = this.offset;
   return point;
 };
+
+//function rightNormalized0(func) {
+//  return function() {
+//    func(this.rightNormalized());
+//  };
+//}
+//function rightNormalized1(func) {
+//  return function(arg1) {
+//    func(this.rightNormalized(), arg1);
+//  };
+//}
+//
+//function leftNormalized0(func) {
+//  return function() {
+//    func(this.leftNormalized());
+//  };
+//}
+//function leftNormalized1(func) {
+//  return function(arg1) {
+//    func(this.leftNormalized(arg1));
+//  };
+//}
 
 function checkHasParent(node) {
   assert(node.parentNode, 'node not attached to a parent', node);
