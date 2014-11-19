@@ -2,7 +2,7 @@
 
 JASMIN=node_modules/jasmine-node/bin/jasmine-node 
 
-$JASMIN --color .
-$JASMIN --autotest --color .
-
+$JASMIN --color *.js
+$JASMIN --autotest --color *.js
+                             
 

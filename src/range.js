@@ -14,7 +14,7 @@ function Range(anchor, focus) {
 };
 
 Range.prototype.isCollapsed = function() {
-  return this.anchor.isEquivalentTo(this.focus);
+  return this.anchor.compare(this.focus) === 0;
 };
 
 Range.prototype.copy = function() {

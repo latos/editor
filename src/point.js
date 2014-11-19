@@ -139,6 +139,14 @@ Point.prototype.moveToText = function(node, offset) {
   return this;
 };
 
+Point.prototype.moveToTextStart = function(node) {
+  this.moveToText(node, 0);
+};
+
+Point.prototype.moveToTextEnd = function(node) {
+  this.moveToText(node, node.length);
+};
+
 Point.prototype.moveToStart = function(elem) {
   this.type = START;
   this.node = checkElem(elem);
@@ -439,7 +447,7 @@ Point.prototype.nodeNormalized = function(mustLeave) {
 };
 
 Point.prototype.copy = function() {
-  var point = new Point();
+  var point = new Point(magic);
   point.type = this.type;
   point.node = this.node;
   point.offset = this.offset;

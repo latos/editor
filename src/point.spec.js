@@ -1,6 +1,8 @@
-var jsdom = require('jsdom');
-var Q = require('q');
 var Point = require('./point');
+var tutil = require('./test-util');
+
+var dom = tutil.dom;
+var promised = tutil.promised;
 
 describe('Point', function() {
   it('should construct well', promised(function() {
@@ -74,6 +76,7 @@ describe('Point', function() {
       expect(Point.text(t, 0).elemEndingAt()).toBe(null);
       expect(Point.text(t, 2).elemEndingAt()).toBe(null);
       expect(Point.text(t, 3).elemEndingAt()).toBe(i);
+      expect(Point.after(b.firstChild).elemEndingAt()).toBe(b);
     })
   }));
 
@@ -146,33 +149,5 @@ function expectAfter(point1, point2) {
 }
 function expectEquivalent(point1, point2) {
   expect(point1.compare(point2)).toBe(0);
-}
-
-function dom(html, func) {
-  var deferred = Q.defer();
-
-  jsdom.env({
-      html: html, 
-      done: function(err, win) { 
-        if (err) {
-          deferred.reject(err);
-          return;
-        }
-
-        deferred.resolve(win.document.body.firstChild);
-      }
-  });
-
-  return func ? deferred.promise.then(func) : deferred.promise;
-}
-
-function promised(func) {
-  return function(done) {
-    (func() || Q.resolve())
-    .then(done)
-    .catch(function(err) {
-      done(err);
-    })
-  };
 }
 

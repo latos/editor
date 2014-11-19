@@ -2,6 +2,7 @@ var util = require('./util');
 var EventBus = require('./event-bus');
 var EventRouter = require('./event-router');
 var Selection = require('./selection');
+var Registry = require('./registry');
 
 /**
  * Editor class
@@ -19,9 +20,12 @@ module.exports = function Editor() {
   var currentElem = null;
 
   var bus = new EventBus();
-  var expander = new EventRouter(bus);
 
   var selection = new Selection(window.getSelection());
+
+  var registry = new Registry(bus);
+
+  var router = new EventRouter(getCurrentElem, registry, selection);
 
   /**
    * The editor's selection helper
@@ -44,7 +48,7 @@ module.exports = function Editor() {
     elem.contentEditable = true;
     elem.style.outline = 'none';
 
-    detacher = attachHandlers(elem, expander.handlers);
+    detacher = attachHandlers(elem, router.handlers);
 
     bus.post('attached');
   };
@@ -77,7 +81,8 @@ module.exports = function Editor() {
   /**
    * The element the editor is currently attached to (or null)
    */
-  me.currentElem = function() {
+  me.currentElem = getCurrentElem;
+  function getCurrentElem() {
     return currentElem;
   };
 

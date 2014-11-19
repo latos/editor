@@ -9,8 +9,15 @@ window.onload = function() {
 
   var editor = new Editor();
   editor.addListener({
-    onChange: function() {
+    onContent: function() {
       showContent();
+    },
+    onSelection: function(selection) {
+      var isCollapsed = selection.isCollapsed();
+      if (!isCollapsed) {
+        console.log("Range!", selection.getCoords());
+      }
+
     },
     onAttached: function() {
       console.log("Editor attached");
@@ -21,6 +28,12 @@ window.onload = function() {
         console.log('enter, saving sel markers');
         editor.selection().saveToMarkers();
       }
+    },
+    onKey: function(e) {
+      if (e.keyType == 'backspace' && e.point.type == 'start') {
+        e.preventDefault();
+      }
+      return true;
     }
   });
 

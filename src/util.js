@@ -28,12 +28,29 @@ exports.isOrHasChild = function(elem, maybeChild) {
   return false;
 };
 
+/**
+ * returns the node's parent if the node is its first child
+ */
 exports.isFirstChild = function(node) {
-  return node.parentNode && !node.previousSibling;
+  return !node.previousSibling && node.parentNode || null;
 };
 
+/**
+ * returns the node's parent if the node is its last child
+ */
 exports.isLastChild = function(node) {
-  return node.parentNode && !node.nextSibling;
+  return !node.nextSibling && node.parentNode || null;
+};
+
+exports.isEditable = function(elem) {
+  while (elem.contentEditable == 'inherit') {
+    elem = elem.parentNode;
+    if (!elem) {
+      return false;
+    }
+  }
+
+  return elem.contentEditable == 'true';
 };
 
 /**
