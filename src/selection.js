@@ -32,6 +32,11 @@ function Selection(nativeSelection) {
     native.setBaseAndExtent(anchorPair[0], anchorPair[1], focusPair[0], focusPair[1]);
   };
 
+  /** Convenience function - returns true if the selection is collapsed */
+  me.isCollapsed = function() {
+    return me.getRange().isCollapsed();
+  };
+
   me.getRange = function() {
     // TODO: Check for selection within editor and return null if none.
     if (!native.anchorNode) {
@@ -63,6 +68,8 @@ function Selection(nativeSelection) {
     util.removeNode(markers[0]);
     util.removeNode(markers[1]);
   };
+
+  me.getCoords = getSelectionCoords;
 };
 
 // TODO: implement wrapper to abstract browser variants.
@@ -82,3 +89,51 @@ function Selection(nativeSelection) {
 //};
 
 
+// copy pasted from
+// http://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page
+// TODO: refactor as needed.
+function getSelectionCoords() {
+  var sel = document.selection, range, rects, rect;
+  var x = 0, y = 0;
+  if (sel) {
+    if (sel.type != "Control") {
+      range = sel.createRange();
+      range.collapse(true);
+      x = range.boundingLeft;
+      y = range.boundingTop;
+    }
+  } else if (window.getSelection) {
+    sel = window.getSelection();
+    if (sel.rangeCount) {
+      range = sel.getRangeAt(0).cloneRange();
+      if (range.getClientRects) {
+        range.collapse(true);
+        rects = range.getClientRects();
+        if (rects.length > 0) {
+          rect = range.getClientRects()[0];
+        }
+        x = rect.left;
+        y = rect.top;
+      }
+      // Fall back to inserting a temporary element
+      if (x == 0 && y == 0) {
+        var span = document.createElement("span");
+        if (span.getClientRects) {
+          // Ensure span has dimensions and position by
+          // adding a zero-width space character
+          span.appendChild( document.createTextNode("\u200b") );
+          range.insertNode(span);
+          rect = span.getClientRects()[0];
+          x = rect.left;
+          y = rect.top;
+          var spanParent = span.parentNode;
+          spanParent.removeChild(span);
+
+          // Glue any broken text nodes back together
+          spanParent.normalize();
+        }
+      }
+    }
+  }
+  return { x: x, y: y };
+}
