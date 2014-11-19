@@ -6,18 +6,12 @@ require('../src/client');
 
 window.onload = function() {
   var Editor = qed.Editor;
+  var Toolbar = qed.Toolbar;
 
   var editor = new Editor();
   editor.addListener({
     onContent: function() {
       showContent();
-    },
-    onSelection: function(selection) {
-      var isCollapsed = selection.isCollapsed();
-      if (!isCollapsed) {
-        console.log("Range!", selection.getCoords());
-      }
-
     },
     onAttached: function() {
       console.log("Editor attached");
@@ -40,6 +34,8 @@ window.onload = function() {
   editor.attach($('editor'));
   editor.focus();
   showContent();
+
+  var toolbar = new Toolbar(editor);
 
   function showContent() {
     $('content').innerHTML = '';
