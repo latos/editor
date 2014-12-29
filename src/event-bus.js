@@ -58,6 +58,11 @@ module.exports = function EventBus() {
 
     for (var i = 0; i < list.length; i++) {
       var handled = list[i](name, data);
+      
+      if (typeof handled !== 'boolean') {
+        console.warn('handler return type was not boolean, instead got', 
+          handled, 'for event', name, data);
+      }
       if (handled) {
         return true;
       }
