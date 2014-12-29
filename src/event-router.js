@@ -96,7 +96,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         var next = node.parentNode;
         next = isAttached(next) ? next : null;
 
-        var handled = handleEvent(registry.handlerFor(point.node),
+        var handled = handleEvent(registry.handlerFor(node),
             'key', decorateKeyEvent(e, info.type, point));
 
         if (handled || !next) {
