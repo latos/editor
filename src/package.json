@@ -2,6 +2,7 @@
   "name": "editor-devel",
   "description": "editor devel helper only",
   "version": "0.0.1",
+  "main": "./client.js",
   "private": true,
   "devDependencies": {
     "webpack": "1.4.9",

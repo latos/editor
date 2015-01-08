@@ -129,6 +129,7 @@ Point.prototype.toString = function() {
       (this.type === TEXT ? ':' + this.offset : '') + ']';
 };
 
+
 Point.prototype.moveToText = function(node, offset) {
   this.type = TEXT;
   this.node = checkText(node);
@@ -240,6 +241,47 @@ Point.prototype.insert = function(newChild) {
   }
 };
 
+
+/**
+ * Split at a point.
+ */
+Point.prototype.splitRight = function(splitWith) {
+  this.setTo(splitRight(this, splitWith).rightNormalized());
+}
+
+function splitRight(splitPoint, splitWith) {
+  splitPoint.ensureInsertable();
+  splitPoint = splitPoint.rightNormalized();
+  var avoidSplittingIfPossible = !splitWith;
+  
+  var resultPoint = Point.after(splitPoint.containingElement());
+  
+  if (resultPoint.type === END && avoidSplittingIfPossible) {
+    return resultPoint;
+  }
+
+  var originalElem = splitPoint.containingElement();
+  if (splitWith === true || !splitWith) {
+    splitWith = originalElem.cloneNode(false);
+  }
+  checkElem(splitWith);
+  resultPoint.insert(splitWith);
+
+  if (splitPoint.type === BEFORE) {
+    do {
+      var node = originalElem.lastChild;
+      splitWith.insertBefore(node, splitWith.firstChild);
+    } while (node != splitPoint.node);
+
+  } else if (splitPoint.type === END) {
+    // do nothing
+  } else {
+    assert(false);
+  }
+
+  return Point.before(splitWith);
+};
+
 /**
  * Adjusts the internal representation to be right-biased,
  */
@@ -296,6 +338,25 @@ Point.prototype.leftNormalized = function() {
 
   return p;
 };
+
+
+/**
+ * Returns the containing element.
+ */
+Point.prototype.containingElement = function() {
+  switch (this.type) {
+    case TEXT:
+    case BEFORE:
+    case AFTER:
+      return this.node.parentNode;
+    case START:
+    case END:
+      return this.node;
+    default: assert(false);
+  }
+};
+
+
 
 /**
  * Returns the containing element, if the point is at its start
@@ -453,6 +514,13 @@ Point.prototype.copy = function() {
   point.offset = this.offset;
   return point;
 };
+
+
+Point.prototype.setTo = function(point) {
+  this.type = point.type;
+  this.node = point.node;
+  this.offset = point.offset;
+}
 
 //function rightNormalized0(func) {
 //  return function() {

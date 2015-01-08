@@ -1,0 +1,12 @@
+{
+  "name": "qwilr-editor",
+  "homepage": "https://github.com/latos/editor",
+  "_release": "d9d14ed7b7",
+  "_resolution": {
+    "type": "commit",
+    "commit": "d9d14ed7b767f666d"
+  },
+  "_source": "https://github.com/latos/editor.git",
+  "_target": "d9d14ed7b767f666d",
+  "_originalSource": "https://github.com/latos/editor.git"
+}

@@ -77,7 +77,26 @@ describe('Point', function() {
       expect(Point.text(t, 2).elemEndingAt()).toBe(null);
       expect(Point.text(t, 3).elemEndingAt()).toBe(i);
       expect(Point.after(b.firstChild).elemEndingAt()).toBe(b);
-    })
+    });
+  }));
+
+  it('should split at a point', promised(function(){
+    return dom('<p>stuff<b>Here<i>good</i>things</b>and things here</p>', function(elem) {
+      var stuff = elem.firstChild
+      var b = stuff.nextSibling
+      var here = b.firstChild
+      var i = here.nextSibling 
+      
+      var point = Point.text(here, 1);
+      point.splitRight();
+      expect( b.innerHTML ).toBe("H");
+      var createdB = b.nextSibling;
+      expect( createdB.nodeType ).toBe(1);
+      expect( createdB.tagName ).toBe('B');
+      expect( point.node ).toBe( createdB );
+      expect( point.type ).toBe('before');
+      
+    });
   }));
 
   it('should detect before/after elem/text', promised(function() {
