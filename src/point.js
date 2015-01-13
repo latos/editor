@@ -283,6 +283,57 @@ function splitRight(splitPoint, splitWith) {
 };
 
 /**
+ * Split at a point but left-biased
+ */
+Point.prototype.splitLeft = function(splitWith) {
+  this.setTo(splitLeft(this, splitWith).leftNormalized());
+};
+
+function splitLeft(splitPoint, splitWith) {
+  // Creates the actaul split
+  splitPoint.ensureInsertable();
+  // Normalizes the point with left-bias
+  splitPoint = splitPoint.leftNormalized();
+  var avoidSplittingIfPossible = !splitWith;
+
+  var resultPoint = Point.before(splitPoint.containingElement());
+
+  // This will never get called as resultPoint is always of type 'BEFORE' based on previous function call
+  if (resultPoint.type === START && avoidSplittingIfPossible) {
+    return resultPoint;
+  }
+
+  // Grabs the containing element and clones, unless alternative element is provided, and inserts the empty node
+  // before the original element
+  var originalElem = splitPoint.containingElement();
+  if (splitWith === true || !splitWith) {
+    splitWith = originalElem.cloneNode(false);
+  }
+  checkElem(splitWith);
+  resultPoint.insert(splitWith);
+
+  if (splitPoint.type === AFTER) {
+
+    // Move child elements of the original element that are left of the split point to the newly created node
+    do{
+      var node = originalElem.firstChild;
+      splitWith.appendChild(node);
+    } while (node != splitPoint.node);
+
+  } else if (splitPoint.type === START) {
+    // Do nothing
+  } else {
+    assert(false);
+  }
+
+  // Set the caret to the new line
+  //pair = splitPoint.toNodeOffset();
+  //window.getSelection().setBaseAndExtent(pair[0], pair[1], pair[0], pair[1]);
+
+  return Point.after(splitWith);
+};
+
+/**
  * Adjusts the internal representation to be right-biased,
  */
 Point.prototype.rightNormalized = function() {

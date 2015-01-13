@@ -99,6 +99,25 @@ describe('Point', function() {
     });
   }));
 
+  it('should split at a point (left bias)', promised(function(){
+    return dom('<p>stuff<b>Here<i>good</i>things</b>and things here</p>', function(elem) {
+      var stuff = elem.firstChild
+      var b = stuff.nextSibling
+      var here = b.firstChild
+      var i = here.nextSibling 
+      
+      var point = Point.text(here, 1);
+      point.splitLeft();
+      expect( b.innerHTML ).toBe("ere<i>good</i>things");
+      var createdB = b.previousSibling;
+      expect( createdB.nodeType ).toBe(1);
+      expect( createdB.tagName ).toBe('B');
+      expect( point.node ).toBe( createdB );
+      expect( point.type ).toBe('after');
+      
+    });
+  }));
+
   it('should detect before/after elem/text', promised(function() {
     return dom('<p><i>sup</i><b>blah</b><span></span></p>', function(elem) {
       var p = elem;
