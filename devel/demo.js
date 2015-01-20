@@ -25,6 +25,29 @@ splitRightHandler = function(point) {
   return false
 }
 
+joinLeftHandler = function(point) {
+  if (point.node.parentNode.id === 'editor') {
+    result = true;
+  }
+  else {
+    result = false;
+  }
+  point.joinLeft();
+
+  return result;
+};
+
+joinRightHandler = function(point) {
+  point.joinRight();
+
+  if (point.node.parentNode.id === 'editor') {
+    return true;
+  }
+  else {
+    return false;
+  }
+};
+
 window.onload = function() {
   var Editor = qed.Editor;
   var Toolbar = qed.Toolbar;
