@@ -70,6 +70,13 @@ window.onload = function() {
     onKey: function(e) {
       if (e.keyType == 'backspace' && e.point.type == 'start') {
         e.preventDefault();
+        //result = joinRightHandler(e.point);
+        result = joinLeftHandler(e.point);
+        showContent();
+
+        editor.selection().setCaret(e.point);
+
+        return result;
       } else if (e.keyCode == 13) {
         result = splitLeftHandler(e.point);
         showContent();
