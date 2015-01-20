@@ -56,9 +56,11 @@ window.onload = function() {
   editor.addListener({
     onContent: function() {
       showContent();
+    return true;
     },
     onAttached: function() {
       console.log("Editor attached");
+    return true;
     },
     onKeypress: function(e) {
       // quick hack to test plumbing
@@ -78,7 +80,6 @@ window.onload = function() {
 
         return result;
       } else if (e.keyCode == 13) {
-        result = splitLeftHandler(e.point);
         result = splitRightHandler(e.point);
         showContent();
 
