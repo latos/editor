@@ -79,6 +79,7 @@ window.onload = function() {
         return result;
       } else if (e.keyCode == 13) {
         result = splitLeftHandler(e.point);
+        result = splitRightHandler(e.point);
         showContent();
 
         // We set the caret to the split point
