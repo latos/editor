@@ -361,8 +361,7 @@ function joinRight(joinPoint) {
   }
   else if (joinPoint.type === END) {
     // do nothing
-  }
-  else {
+  } else {
     assert(false);
   }
 
@@ -412,8 +411,7 @@ function joinLeft(joinPoint) {
   }
   else if (joinPoint.type === START) {
     // do nothing
-  }
-  else {
+  } else {
     assert(false);
   }
 
