@@ -118,7 +118,6 @@ describe('Point', function() {
     });
   }));
 
-
   it('should join at a point after a node (right bias)', promised(function(){
     return dom('<div><h1>stuff</h1><p>things</p></div>', function(elem) {
       var stuff = elem.firstChild
@@ -129,6 +128,22 @@ describe('Point', function() {
       expect( things.innerHTML ).toBe("stuffthings");
       expect( things.nodeType ).toBe(1);
       expect( things.tagName ).toBe('P');
+      expect( point.offset ).toBe( 5 );
+      expect( point.type ).toBe('text');
+      
+    });
+  }));
+
+  it('should join at a point before a node (left bias with multiple children)', promised(function(){
+    return dom('<p><b>initial<i>fluff</i>stuff</b><i>things<b>more</b>children</i></p>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.before(things);
+      point.joinLeft();
+      expect( things.innerHTML ).toBe("initial<i>fluff</i>stuffthings<b>more</b>children");
+      expect( things.nodeType ).toBe(1);
+      expect( things.tagName ).toBe('I');
       expect( point.offset ).toBe( 5 );
       expect( point.type ).toBe('text');
       
@@ -180,6 +195,36 @@ describe('Point', function() {
       expect( point.offset ).toBe( 5 );
       expect( point.type ).toBe('text');
       
+    });
+  }));
+
+  it('should join at a point after a nested node (left bias)', promised(function(){
+    return dom('<div><h1><b>stuff</b></h1><p>things</p></div>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.after(stuff);
+      point.joinLeft();
+      expect( stuff.innerHTML ).toBe("<b>stuff</b>things");
+      expect( stuff.nodeType ).toBe(1);
+      expect( stuff.tagName ).toBe('H1');
+      expect( point.type ).toBe('after');
+      expect( point.node.tagName ).toBe('B');
+    });
+  }));
+
+  it('should join at a point after a node (left bias)', promised(function(){
+    return dom('<div><h1>stuff</h1><p>things</p></div>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.after(stuff);
+      point.joinLeft();
+      expect( stuff.innerHTML ).toBe("stuffthings");
+      expect( stuff.nodeType ).toBe(1);
+      expect( stuff.tagName ).toBe('H1');
+      expect( point.offset ).toBe( 5 );
+      expect( point.type ).toBe('text');
     });
   }));
 

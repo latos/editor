@@ -377,6 +377,52 @@ function joinRight(joinPoint) {
   return resultPoint;
 };
 
+/*
+ * Joins at this point, preserving left node. Expects point to be either BEFORE or AFTER a node
+ */
+Point.prototype.joinLeft = function() {
+  this.setTo(joinLeft(this).leftNormalized());
+};
+
+function joinLeft(joinPoint) {
+  assert(joinPoint.type === BEFORE || joinPoint.type === AFTER);
+  joinPoint = joinPoint.leftNormalized();
+
+  source = joinPoint.node.nextSibling;
+  dest = source.previousSibling;
+  parentNode = dest.parentNode;
+
+
+  if (!source) {
+    return Point.after(joinPoint.node);
+  }
+
+  if (dest.firstChild.nodeType === 3) {
+    resultPoint = Point.text(dest.firstChild, dest.textContent.length);
+  } else {
+    resultPoint = Point.after(dest.lastChild);
+  }
+
+  if (joinPoint.type === AFTER) {
+    do {
+      var node = source.firstChild;
+      dest.appendChild(node);
+    } while (source.hasChildNodes());
+    parentNode.removeChild(source);
+  }
+  else if (joinPoint.type === START) {
+    // do nothing
+  }
+  else {
+    assert(false);
+  }
+
+  // Normalize the node to remove any inner adjacent text nodes
+  dest.normalize()
+
+  return resultPoint;
+};
+
 /**
  * Adjusts the internal representation to be right-biased,
  */
