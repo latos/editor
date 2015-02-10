@@ -80,7 +80,7 @@ describe('Point', function() {
     });
   }));
 
-  it('should split at a point', promised(function(){
+  it('should split at a point (right bias)', promised(function(){
     return dom('<p>stuff<b>Here<i>good</i>things</b>and things here</p>', function(elem) {
       var stuff = elem.firstChild
       var b = stuff.nextSibling
