@@ -28,6 +28,20 @@ Range.prototype.isOrdered = function() {
   return this.anchor.compare(this.focus) <= 0;
 };
 
+Range.prototype.orderedCopy = function() {
+  var r = this.copy();
+  r.order();
+  return r;
+};
+
+Range.prototype.getStart = function() {
+  return this.isOrdered() ? this.anchor : this.focus;
+};
+
+Range.prototype.getEnd = function() {
+  return this.isOrdered() ? this.focus : this.anchor;
+};
+
 Range.prototype.order = function() {
   if (!this.isOrdered()) {
     var tmp = this.focus;

@@ -15,6 +15,13 @@ exports.args2array = function(x) {
   return Array.prototype.slice.call(x);
 };
 
+exports.shallowCopy = function(obj) {
+  var copy = {};
+  for (var k in obj) {
+    copy[k] = obj[k];
+  }
+  return copy;
+};
 
 exports.isOrHasChild = function(elem, maybeChild) {
   while (maybeChild) {
@@ -43,7 +50,8 @@ exports.isLastChild = function(node) {
 };
 
 exports.isEditable = function(elem) {
-  while (elem.contentEditable == 'inherit') {
+  // first case is for jsdom
+  while (typeof elem.contentEditable === 'undefined' || elem.contentEditable == 'inherit') {
     elem = elem.parentNode;
     if (!elem) {
       return false;
@@ -51,6 +59,10 @@ exports.isEditable = function(elem) {
   }
 
   return elem.contentEditable == 'true';
+};
+
+exports.isElemType = function(elem, str) {
+  return elem.tagName.toLowerCase() === str.toLowerCase();
 };
 
 /**
@@ -129,12 +141,21 @@ exports.removeClass = function(elem, klass) {
   elem.className = elem.className.replace(new RegExp(' *' + klass + ' *'), ' ');
 };
 
-exports.isBlock = function(elem) {
-  return exports.computedStyle(elem).display === 'block';
+// TODO: Get rid of this wnd parameter threading,
+// and make a util class that contains wnd as a member var.
+exports.isBlock = function(elem, wnd) {
+  return exports.computedStyle(elem, wnd).display === 'block';
 };
 
-exports.computedStyle = function(elem) {
-  return elem.currentStyle || window.getComputedStyle(elem, ""); 
+/**
+ * wnd - optional arg to override window, for testing. not ideal but meh.
+ */
+exports.computedStyle = function(elem, wnd) {
+  if (!wnd) {
+    wnd = window;
+  }
+
+  return elem.currentStyle || wnd.getComputedStyle(elem, ""); 
 };
 
 exports.removeNode = function(node) {
@@ -178,3 +199,12 @@ exports.rateLimited = function(intervalMillis, func) {
 };
 
 exports.noop = function(){};
+
+exports.map = function(arr, func) {
+  var result = [];
+  var len = arr.length;
+  for (var i = 0; i < len; i++) {
+    result.push(func(arr[i]));
+  }
+  return result;
+};
