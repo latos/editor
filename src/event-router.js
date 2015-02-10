@@ -68,7 +68,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         }
         var next = bubblers[dir](point);
 
-        var handled = handleEvent(registry.handlerFor(point.node),
+        var handled = handleEvent(registry.busFor(point.node),
             'key', decorateKeyEvent(e, info.type, point));
 
         if (handled || !next) {
@@ -96,7 +96,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         var next = node.parentNode;
         next = isAttached(next) ? next : null;
 
-        var handled = handleEvent(registry.handlerFor(node),
+        var handled = handleEvent(registry.busFor(node),
             'key', decorateKeyEvent(e, info.type, point));
 
         if (handled || !next) {
