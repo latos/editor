@@ -118,6 +118,71 @@ describe('Point', function() {
     });
   }));
 
+
+  it('should join at a point after a node (right bias)', promised(function(){
+    return dom('<div><h1>stuff</h1><p>things</p></div>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.after(stuff);
+      point.joinRight();
+      expect( things.innerHTML ).toBe("stuffthings");
+      expect( things.nodeType ).toBe(1);
+      expect( things.tagName ).toBe('P');
+      expect( point.offset ).toBe( 5 );
+      expect( point.type ).toBe('text');
+      
+    });
+  }));
+
+  it('should join at a point before a node (right bias)', promised(function(){
+    return dom('<p><b>stuff</b><i>things</i></p>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.before(things);
+      point.joinRight();
+      expect( things.innerHTML ).toBe("stuffthings");
+      expect( things.nodeType ).toBe(1);
+      expect( things.tagName ).toBe('I');
+      expect( point.offset ).toBe( 5 );
+      expect( point.type ).toBe('text');
+      
+    });
+  }));
+
+  it('should join at a point before a node (right bias with multiple children)', promised(function(){
+    return dom('<p><b>stuff</b><i>things<b>more</b>children</i></p>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.before(things);
+      point.joinRight();
+      expect( things.innerHTML ).toBe("stuffthings<b>more</b>children");
+      expect( things.nodeType ).toBe(1);
+      expect( things.tagName ).toBe('I');
+      expect( point.offset ).toBe( 5 );
+      expect( point.type ).toBe('text');
+      
+    });
+  }));
+
+  it('should join at a point before a node (right bias)', promised(function(){
+    return dom('<div><h2>stuff</h2><p>things</p></div>', function(elem) {
+      var stuff = elem.firstChild
+      var things = stuff.nextSibling
+      
+      var point = Point.before(things);
+      point.joinRight();
+      expect( things.innerHTML ).toBe("stuffthings");
+      expect( things.nodeType ).toBe(1);
+      expect( things.tagName ).toBe('P');
+      expect( point.offset ).toBe( 5 );
+      expect( point.type ).toBe('text');
+      
+    });
+  }));
+
   it('should detect before/after elem/text', promised(function() {
     return dom('<p><i>sup</i><b>blah</b><span></span></p>', function(elem) {
       var p = elem;

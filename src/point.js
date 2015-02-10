@@ -329,6 +329,54 @@ function splitLeft(splitPoint, splitWith) {
   return Point.after(splitWith);
 };
 
+/*
+ * Joins at this point, preserving the right node. Expects point to be either BEFORE or AFTER a node
+ */
+Point.prototype.joinRight = function() {
+  this.setTo(joinRight(this).rightNormalized());
+};
+
+function joinRight(joinPoint) {
+  assert(joinPoint.type === BEFORE || joinPoint.type === AFTER);
+  joinPoint = joinPoint.rightNormalized();
+
+  source = joinPoint.node.previousSibling;
+  dest = source.nextSibling;
+  parentNode = dest.parentNode;
+
+  if (!source) {
+    return Point.before(joinPoint.node);
+  }
+
+  resultPoint = Point.before(dest.firstChild);
+
+  if (joinPoint.type === BEFORE) {
+    // Move each node from the sibling node to the left over to this node
+    do {
+      var node = source.lastChild;
+      dest.insertBefore(node, dest.firstChild);
+    } while (source.hasChildNodes());
+    // Remove the now empty node
+    parentNode.removeChild(source);
+  }
+  else if (joinPoint.type === END) {
+    // do nothing
+  }
+  else {
+    assert(false);
+  }
+
+  // Before normalizing, check if the result point and the (new) previous sibling node are text.
+  // If so set the offset to the length of the previous sibling's text
+  if (resultPoint.node.nodeType === 3 && resultPoint.node.previousSibling.nodeType === 3) {
+    resultPoint.moveToText(resultPoint.node, resultPoint.node.previousSibling.length);
+  }
+
+  dest.normalize();
+
+  return resultPoint;
+};
+
 /**
  * Adjusts the internal representation to be right-biased,
  */
