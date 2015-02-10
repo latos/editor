@@ -283,7 +283,7 @@ function splitRight(splitPoint, splitWith) {
 };
 
 /**
- * Split at a point but left-biased
+ * Split at a point with left-bias
  */
 Point.prototype.splitLeft = function(splitWith) {
   this.setTo(splitLeft(this, splitWith).leftNormalized());
@@ -325,10 +325,6 @@ function splitLeft(splitPoint, splitWith) {
   } else {
     assert(false);
   }
-
-  // Set the caret to the new line
-  //pair = splitPoint.toNodeOffset();
-  //window.getSelection().setBaseAndExtent(pair[0], pair[1], pair[0], pair[1]);
 
   return Point.after(splitWith);
 };
