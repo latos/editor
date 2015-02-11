@@ -28,6 +28,8 @@ function Toolbar(editor) {
       } else {
         me.elem.style.display = 'none';
       }
+
+      return false;
     }
   });
 
