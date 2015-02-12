@@ -294,6 +294,8 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
   }
 };
 
+// TODO: possibly replace bubble utility functions with range iterators
+
 /**
  * Alters the given point such that:
  * - if there is a contextual element to apply a directional (left/right)
