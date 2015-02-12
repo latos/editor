@@ -396,8 +396,8 @@ function joinLeft(joinPoint) {
     return Point.after(joinPoint.node);
   }
 
-  if (dest.firstChild.nodeType === 3) {
-    resultPoint = Point.text(dest.firstChild, dest.textContent.length);
+  if (dest.lastChild.nodeType === 3) {
+    resultPoint = Point.text(dest.lastChild, dest.lastChild.textContent.length);
   } else {
     resultPoint = Point.after(dest.lastChild);
   }
