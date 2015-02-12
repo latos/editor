@@ -166,7 +166,10 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
       scheduleSelectionChangeNotifier();
     }),
     compositionstart: wrap(),
-    compositionend: wrap()
+    compositionend: wrap(),
+    DOMSubtreeModified: wrap(function(e) {
+      scheduleContentChangeNotifier();
+    })
   };
 
   // Logical directions (within the dom)
