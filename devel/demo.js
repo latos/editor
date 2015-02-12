@@ -68,14 +68,6 @@ window.onload = function() {
       console.log("Editor attached");
       return true;
     },
-    onKeypress: function(e) {
-      // quick hack to test plumbing
-      // if (e.keyCode == 13) {
-      //   console.log("enter", e);
-      //   e.preventDefault();
-      // }
-      return true;
-    },
     onKey: function(e) {
       // if (e.keyType == 'backspace' && e.point.type == 'start') {
       //   e.preventDefault();
@@ -95,14 +87,8 @@ window.onload = function() {
 
       //   return result;
       // }
-
-      // // return true;
       return false;
     },
-    // Trying to get rid of error messaging for unhandled events to clear up debugging messages
-    onSelection: function(e) {
-      return false;
-    }
   });
 
   editor.attach($('editor'));
@@ -110,7 +96,7 @@ window.onload = function() {
   showContent();
 
   var tracker = new StemTracker(editor, function(){
-    console.log("clicked some shiz");
+    /* Click handler goes here */
   });
   var toolbar = new Toolbar(editor);
 

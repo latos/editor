@@ -23,6 +23,10 @@ exports.shallowCopy = function(obj) {
   return copy;
 };
 
+exports.isElement = function(node) {
+  return node.nodeType === 1;
+}
+
 exports.isOrHasChild = function(elem, maybeChild) {
   while (maybeChild) {
     if (maybeChild === elem) {
