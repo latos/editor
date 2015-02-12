@@ -15,6 +15,9 @@ exports.args2array = function(x) {
   return Array.prototype.slice.call(x);
 };
 
+exports.isElement = function(node) {
+  return node.nodeType === 1;
+}
 
 exports.isOrHasChild = function(elem, maybeChild) {
   while (maybeChild) {
@@ -130,7 +133,7 @@ exports.removeClass = function(elem, klass) {
 };
 
 exports.isBlock = function(elem) {
-  return computedStyle(elem).display === 'block';
+  return exports.computedStyle(elem).display === 'block';
 };
 
 exports.computedStyle = function(elem) {

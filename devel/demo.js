@@ -26,6 +26,7 @@ splitRightHandler = function(point) {
 }
 
 joinLeftHandler = function(point) {
+  var result;
   if (point.node.parentNode.id === 'editor') {
     result = true;
   }
@@ -48,58 +49,55 @@ joinRightHandler = function(point) {
   }
 };
 
+
+
+// -----------------------------------------------------
+
 window.onload = function() {
   var Editor = qed.Editor;
   var Toolbar = qed.Toolbar;
+  var StemTracker = qed.StemTracker;
 
   var editor = new Editor();
   editor.addListener({
     onContent: function() {
       showContent();
-    return true;
+      return false;
     },
     onAttached: function() {
       console.log("Editor attached");
-    return true;
-    },
-    onKeypress: function(e) {
-      // quick hack to test plumbing
-      if (e.keyCode == 13) {
-        e.preventDefault();
-      }
       return true;
     },
     onKey: function(e) {
-      if (e.keyType == 'backspace' && e.point.type == 'start') {
-        e.preventDefault();
-        //result = joinRightHandler(e.point);
-        result = joinLeftHandler(e.point);
-        showContent();
+      // if (e.keyType == 'backspace' && e.point.type == 'start') {
+      //   e.preventDefault();
+      //   //result = joinRightHandler(e.point);
+      //   result = joinLeftHandler(e.point);
+      //   showContent();
 
-        editor.selection().setCaret(e.point);
+      //   editor.selection().setCaret(e.point);
 
-        return result;
-      } else if (e.keyCode == 13) {
-        result = splitRightHandler(e.point);
-        showContent();
+      //   return result;
+      // } else if (e.keyCode == 13) {
+      //   result = splitRightHandler(e.point);
+      //   showContent();
 
-        // We set the caret to the split point
-        editor.selection().setCaret(e.point);
+      //   // We set the caret to the split point
+      //   editor.selection().setCaret(e.point);
 
-        return result;
-      }
-      return true;
+      //   return result;
+      // }
+      return false;
     },
-    // Trying to get rid of error messaging for unhandled events to clear up debugging messages
-    onSelection: function(e) {
-      return true;
-    }
   });
 
   editor.attach($('editor'));
   editor.focus();
   showContent();
 
+  var tracker = new StemTracker(editor, function(){
+    /* Click handler goes here */
+  });
   var toolbar = new Toolbar(editor);
 
   function showContent() {
