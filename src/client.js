@@ -7,7 +7,8 @@ window.qed = {
   // Plugins for core editor
   Toolbar: require('./toolbar'),
   StemTracker: require('./stems/stem-tracker'),
-  InlineDecorator: require('./inline-decorator')
+  InlineDecorator: require('./inline-decorator'),
+  util: require('./util')
 
   // TODO: Just export all the classes so people can put them together
   //       however they like.
