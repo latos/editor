@@ -1,4 +1,9 @@
+'use strict';
+
+var util = require('./util');
 var Point = require('./point');
+var assert = util.assert;
+
 module.exports = Range;
 
 Range.collapsed = function(point) {
@@ -17,8 +22,11 @@ Range.prototype.isCollapsed = function() {
   return this.anchor.compare(this.focus) === 0;
 };
 
+/**
+ * Deep-copies the range (copies the underlying points too)
+ */
 Range.prototype.copy = function() {
-  return new Range(this.anchor, this.focus);
+  return new Range(this.anchor.copy(), this.focus.copy());
 };
 
 /**
@@ -51,3 +59,147 @@ Range.prototype.order = function() {
 
   return this;
 };
+
+Range.prototype.outwardNormalized = function() {
+  return (this.isOrdered() 
+      ? new Range(this.anchor.leftNormalized(), this.focus.rightNormalized())
+      : new Range(this.focus.leftNormalized(), this.anchor.rightNormalized())
+      );
+};
+
+Range.prototype.isEquivalentTo = function(other) {
+  return this.anchor.isEquivalentTo(other.anchor) &&
+         this.anchor.isEquivalentTo(other.anchor);
+};
+
+Range.prototype.isUnorderedEquivalentTo = function(other) {
+  return this.getStart().isEquivalentTo(other.getStart()) &&
+         this.getEnd().isEquivalentTo(other.getEnd());
+};
+
+/**
+ * Returns a left-to-right iterator (regardless of range's ordering).
+ */
+Range.prototype.iterateRight = function() {
+  return new RightIterator(this.getStart(), this.getEnd());
+};
+
+
+var RightIterator = function(start, end) {
+  this.start = start.leftNormalized();
+  this.end = end.rightNormalized();
+
+  this.point = start.rightNormalized();
+};
+
+RightIterator.prototype.isAtEnd = function() {
+  var cmp = this.point.compare(this.end);
+  assert(cmp <= 0);
+
+  return cmp === 0;
+};
+
+RightIterator.prototype.skipText = function() {
+  if (this.isAtEnd()) {
+    return null;
+  }
+
+  var original = this.point.leftNormalized();
+  var totalChars = 0;
+  while (!this.isAtEnd()) {
+    if (!this.point.hasTextAfter()) {
+      break;
+    }
+
+    // start offset within the text node we are entirely or partially skipping.
+    var startOffset;
+    var textNode = this.point.nodeAfter();
+
+    if (textNode) {
+      startOffset = 0;
+
+      // assume no comments, etc.
+      // will need to handle them if encountered,
+      // probably by skipping over but not updating count.
+
+      assert(textNode.nodeType === 3);
+    } else {
+      startOffset = this.point.offset;
+      textNode = this.point.node;
+    }
+
+    assert(typeof startOffset === 'number');
+
+    // end offset within the text node we are entirely or partially skipping.
+    var endOffset;
+    var endIsInSameNode = (this.end.type === Point.types.TEXT 
+                        && this.end.node === textNode);
+
+    endOffset = endIsInSameNode ? this.end.offset : textNode.length;
+
+
+    assert(endOffset >= startOffset);
+
+    totalChars += endOffset - startOffset;
+
+    if (endOffset === textNode.length) {
+      this.point.moveToAfter(textNode);
+    } else {
+      this.point.moveToText(textNode, endOffset);
+      assert(this.isAtEnd());
+    }
+  }
+
+  if (totalChars === 0) {
+    return null;
+  }
+  
+  return new FlatTextRange(original, this.point.rightNormalized(), totalChars);
+};
+
+RightIterator.prototype.enterElement = function() {
+  if (this.isAtEnd()) {
+    return null;
+  }
+
+  var node = this.point.nodeAfter();
+  if (node && node.nodeType === 1) {
+    this.point.moveToStart(node);
+    return node;
+  }
+
+  return null;
+};
+
+RightIterator.prototype.leaveElement = function() {
+  if (this.isAtEnd()) {
+    return null;
+  }
+
+  var container = this.point.containingElement();
+  assert(container); // not expecting to leave the dom, end point should have been well defined.
+
+  var after = Point.after(container);
+  if (after.compare(this.end) > 0) {
+    return null;
+  }
+
+  this.point = after;
+
+  return container;
+};
+
+var FlatTextRange = function(start, end, length) {
+  assert(length > 0);
+  this.start = start;
+  this.end = end;
+  this.length = length;
+};
+
+FlatTextRange.prototype.wrap = function(elem) {
+  this.start = this.start.ensureInsertable(this.start);
+  this.end   = this.end.ensureInsertable(this.end);
+
+  assert(false); // todo
+};
+
