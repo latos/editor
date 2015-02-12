@@ -15,6 +15,9 @@ exports.args2array = function(x) {
   return Array.prototype.slice.call(x);
 };
 
+exports.isElement = function(node) {
+  return node.nodeType === 1;
+}
 
 exports.isOrHasChild = function(elem, maybeChild) {
   while (maybeChild) {
@@ -129,8 +132,13 @@ exports.removeClass = function(elem, klass) {
   elem.className = elem.className.replace(new RegExp(' *' + klass + ' *'), ' ');
 };
 
+exports.isEditable = function(elem) {
+  /* @TODO - define editable / versus non-editable element. */
+  return true;
+}
+
 exports.isBlock = function(elem) {
-  return computedStyle(elem).display === 'block';
+  return exports.computedStyle(elem).display === 'block';
 };
 
 exports.computedStyle = function(elem) {
