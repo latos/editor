@@ -17,9 +17,9 @@ function StemTracker(editor, onClick) {
 
   this.editorElem = editor.currentElem();
   this.containerElem = this.createDom();
-  this.position();
+  this.reposition();
 
-  /* Listen for changes in content and update. */
+  /** Listen for changes in content and update. */
   editor.addListener({
     onContent: function () {
       updateStems( this.editorElem );
@@ -32,7 +32,7 @@ function StemTracker(editor, onClick) {
     var previousStems = stems;
     stems = [];
 
-    /* Loop through all top level elements */
+    /** Loops through all top level elements */
     var topLevelElems = getTopLevelElems( topLevelTags );
     for (var i=0; i < topLevelElems.length; i++){
       var elem = topLevelElems[i];
@@ -40,7 +40,7 @@ function StemTracker(editor, onClick) {
       stems.push(stem);
     }
 
-    /* Remove orphaned stems */
+    /** Removes orphaned stems */
     for (var i=0; i < previousStems.length; i++){
       var previousStem = previousStems[i];
       if (stems.indexOf(previousStem) < 0){
@@ -68,12 +68,12 @@ function StemTracker(editor, onClick) {
   }
 
   function canHaveStem(elem) {
-    return util.isElement(elem) && util.isBlock(elem) && util.isEditable;
+    return util.isElement(elem) && util.isBlock(elem) && util.isEditable(elem);
   }
 
 }
 
-/* Creates and Appends DOM for the Stem Tracker */
+/** Creates and Appends DOM for the Stem Tracker */
 StemTracker.prototype.createDom = function() {
   var containerElem = document.createElement("div");
   containerElem.className = "stem-tracker-container";
@@ -81,7 +81,8 @@ StemTracker.prototype.createDom = function() {
   return containerElem;
 }
 
-StemTracker.prototype.position = function() {
+/** Positions the Stem Tracker's container div in the DOM */
+StemTracker.prototype.reposition = function() {
   this.containerElem.style.position = 'relative';
   this.containerElem.style.left = '-30px';
   this.containerElem.style.top = '0px';

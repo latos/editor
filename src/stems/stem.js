@@ -2,7 +2,7 @@
 
 var util = require("./../util");
 
-/**
+/***
  * Stem
  *
  * A class that creates and manages the "insert widget here" buttons a.k.a "stems"
@@ -27,25 +27,25 @@ function Stem(blockElem, onClick, containerElem) {
 
 }
 
-/* Static idompotent function to retrive or create a Stem */
+/** Static idompotent function to retrive or create a Stem */
 Stem.getOrCreate = function(blockElem, onClick, containerElem) {
   return blockElem.$stem || new Stem(blockElem, onClick, containerElem);
 }
 
 
-/* Remove the stem */
+/** Remove the stem */
 Stem.prototype.remove = function() {
   delete this.blockElem.$stem;
   util.removeNode( this.stemButton );
 }
 
-/* Reposition the button. */
+/** Reposition the button. */
 Stem.prototype.reposition = function() {
   var coords = this.blockElem.getBoundingClientRect();
   this.stemButton.style.top = (coords.top - (this.stemButton.offsetHeight * 4)) + 'px';
 }
 
-/* Add Stem Button to DOM */
+/** Adds a Stem Button to DOM */
 Stem.prototype.createDom = function() {
   var button = document.createElement("div");
   button.className = "stem-creator-button";
@@ -54,7 +54,7 @@ Stem.prototype.createDom = function() {
   return button;
 }
 
-/* Basic styles */
+/** Adds Basic styles */
 Stem.prototype.addStyles = function() {
   this.stemButton.style.background = "#fff";
   this.stemButton.style.border = "1px solid #ccc";

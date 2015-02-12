@@ -132,11 +132,6 @@ exports.removeClass = function(elem, klass) {
   elem.className = elem.className.replace(new RegExp(' *' + klass + ' *'), ' ');
 };
 
-exports.isEditable = function(elem) {
-  /* @TODO - define editable / versus non-editable element. */
-  return true;
-}
-
 exports.isBlock = function(elem) {
   return exports.computedStyle(elem).display === 'block';
 };
