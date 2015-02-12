@@ -34,6 +34,14 @@ Point.of = of;
 Point.ofArgs = ofArgs;
 Point.check = checkPoint;
 
+Point.types = {
+  TEXT:TEXT,
+  START:START,
+  END:END,
+  BEFORE:BEFORE,
+  AFTER:AFTER
+};
+
 var magic = 'xx';
 
 /**
@@ -570,6 +578,7 @@ Point.prototype.elemAfter = function() {
   return node && node.nodeType === 1 ? node : null;
 };
 Point.prototype.hasTextAfter = function() {
+  // NOTE: this won't handle comment nodes.
   var right = this.rightNormalized();
   switch (right.type) {
     case TEXT: return true;
@@ -581,6 +590,10 @@ Point.prototype.hasTextAfter = function() {
 
 Point.prototype.isWithin = function(elem) {
   assert(false, 'unimplemented');
+};
+
+Point.prototype.isEquivalentTo = function(point) {
+  return this.compare(point) === 0;
 };
 
 /**
@@ -618,13 +631,24 @@ Point.prototype.compare = function(point) {
       return 1;
     } else if (p2.type === TEXT) {
       return -1;
-    } else {
-      assert(p1.type === p2.type, p1.type, '!=', p2.type);
+    } else if (p1.type === p2.type) {
       return 0;
+    } else if (p1.type === BEFORE) {
+      assert(p2.type === END);
+      return -1;
+    } else if (p2.type === BEFORE) {
+      assert(p1.type === END);
+      return 1;
+    } else {
+      assert(false, p1.type, '!=', p2.type);
     }
   }
 
   assert(false, 'unhandled situation - ', relationship);
+};
+
+Point.prototype.isInEmptyTextNode = function() {
+  return this.type === TEXT && this.node.length === 0;
 };
 
 /**
@@ -640,7 +664,7 @@ Point.prototype.nodeNormalized = function(mustLeave) {
     if (this.offset === this.node.length) {
       return after(this.node);
     }
-    assert(this.offset > 0 && this.offset < this.node.length);
+    assert(this.offset > 0 && this.offset < this.node.length, this.offset, this.node.data);
   }
 
   return this;

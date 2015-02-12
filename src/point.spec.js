@@ -49,6 +49,22 @@ describe('Point', function() {
     })
   }));
 
+  it('should be comparable 2', promised(function() {
+    return dom('<div><p></p></div>', function(elem) {
+      var div = elem;
+      var p = div.firstChild;
+
+      expectBefore(Point.start(div), Point.start(p));
+      expectBefore(Point.start(div), Point.end(p));
+      expectBefore(Point.before(p), Point.start(p));
+      expectBefore(Point.before(p), Point.end(p));
+      expectAfter(Point.after(p), Point.start(p));
+      expectAfter(Point.after(p), Point.end(p));
+      expectAfter(Point.end(div), Point.start(p));
+      expectAfter(Point.end(div), Point.end(p));
+    })
+  }));
+
   it('should detect element start and end', promised(function() {
     return dom('<p><i>sup</i><b>blah</b><span></span></p>', function(elem) {
       var p = elem;
