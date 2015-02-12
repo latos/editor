@@ -130,7 +130,7 @@ exports.removeClass = function(elem, klass) {
 };
 
 exports.isBlock = function(elem) {
-  return computedStyle(elem).display === 'block';
+  return exports.computedStyle(elem).display === 'block';
 };
 
 exports.computedStyle = function(elem) {
