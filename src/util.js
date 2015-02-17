@@ -159,7 +159,7 @@ exports.computedStyle = function(elem, wnd) {
     wnd = window;
   }
 
-  return elem.currentStyle || wnd.getComputedStyle(elem, ""); 
+  return elem.currentStyle || wnd.getComputedStyle(elem, "");
 };
 
 exports.removeNode = function(node) {
@@ -200,6 +200,47 @@ exports.rateLimited = function(intervalMillis, func) {
   };
 
   return schedule;
+};
+
+/**
+ * Checks if elem is 'open', i.e. would have non-zero height (a completely empty
+ * paragraph has zero height, unless held 'open' by some text or an element)
+ */
+exports.isOpen = function(elem) {
+  if (elem.textContent.length > 0) {
+    return true;
+  }
+  // Check last child node for <br> tag, which opens the element but doesn't
+  // show in textContent check
+  if (elem.lastChild and elem.lastChild.tagName === "BR") {
+    return true;
+  }
+
+  return false;
+
+};
+
+/**
+ * If elem is not 'open' inserts <br>
+ */
+exports.ensureOpen = function(elem) {
+  if (!this.isOpen(elem)) {
+    elem.appendChild(document.createElement('br'));
+  }
+  return;
+};
+
+/**
+ * Ensure elem has only one <br> tag.
+ */
+exports.cleanOpenElem = function(elem) {
+  for (i = elem.childNodes.length - 1; i >= 0; i--) {
+    if (elem.childNodes[i].tagName === 'BR') {
+      elem.removeChild(elem.childNodes[i]);
+    }
+  }
+  this.ensureOpen(elem);
+  return;
 };
 
 exports.noop = function(){};
