@@ -198,6 +198,47 @@ exports.rateLimited = function(intervalMillis, func) {
   return schedule;
 };
 
+/**
+ * Checks if elem is 'open', i.e. would display in the browser
+ */
+exports.isOpen = function(elem) {
+  if (elem.textContent.length === 0) {
+    // Check any child nodes for <br> tag, which opens the element but doesn't
+    // show in textContent check
+    for (i in elem.children) {
+      if (elem.children[i].tagName === "BR") {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  return true;
+};
+
+/**
+ * If elem is not 'open' inserts <br>
+ */
+exports.ensureOpen = function(elem) {
+  if (!this.isOpen(elem)) {
+    elem.appendChild(document.createElement('br'));
+  }
+  return;
+};
+
+/**
+ * Ensure elem has only one <br> tag.
+ */
+exports.cleanOpenElem = function(elem) {
+  for (i = elem.childNodes.length - 1; i >= 0; i--) {
+    if (elem.childNodes[i].tagName === 'BR') {
+      elem.removeChild(elem.childNodes[i]);
+    }
+  }
+  this.ensureOpen(elem);
+  return;
+};
+
 exports.noop = function(){};
 
 exports.map = function(arr, func) {

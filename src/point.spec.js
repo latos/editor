@@ -160,9 +160,9 @@ describe('Point', function() {
       
       var point = Point.before(things);
       point.joinLeft();
-      expect( things.innerHTML ).toBe("initial<i>fluff</i>stuffthings<b>more</b>children");
-      expect( things.nodeType ).toBe(1);
-      expect( things.tagName ).toBe('I');
+      expect( stuff.innerHTML ).toBe("initial<i>fluff</i>stuffthings<b>more</b>children");
+      expect( stuff.nodeType ).toBe(1);
+      expect( stuff.tagName ).toBe('B');
       expect( point.offset ).toBe( 5 );
       expect( point.type ).toBe('text');
       
