@@ -1,6 +1,7 @@
 'use strict';
 var util = require("./../util");
 var Stem = require("./stem");
+var selection = require("./../selection");
 
 /**
  * Stem Tracking Utility.
@@ -12,7 +13,8 @@ var Stem = require("./stem");
 
 function StemTracker(editor, onClick) {
   var me = this;
-  var stems = [];
+  var stem;
+  var topLevelTags = ['p', 'h1', 'h2', 'h3', 'div', 'section'];
 
   this.editorElem = editor.currentElem();
   this.containerElem = this.createDom();
@@ -20,50 +22,48 @@ function StemTracker(editor, onClick) {
 
   /** Listen for changes in content and update. */
   editor.addListener({
-    onContent: function () {
-      updateStems( this.editorElem );
+    onKeyup: function (e) {
+      updateStems();
       return false;
     },
+    onMouseup: function (e) {
+      updateStems();
+      return false
+    }
   });
 
 
-  function updateStems(editorElem){
-    var previousStems = stems;
-    stems = [];
-
-    /** Loops through all top level elements */
-    var topLevelElems = getTopLevelElems();
-    for (var i=0; i < topLevelElems.length; i++){
-      var elem = topLevelElems[i];
-      var stem = Stem.getOrCreate( elem, onClick, me.containerElem );
-      stems.push(stem);
-      stem.reposition();
-    }
-
-    /** Removes orphaned stems */
-    for (var i=0; i < previousStems.length; i++){
-      var previousStem = previousStems[i];
-      if (stems.indexOf(previousStem) < 0){
-        previousStem.remove();
+  function getTopLevelBlockElem(currentNode){
+    for (var node = currentNode; node != null; node = node.parentNode){
+      if (util.isElement(node) && util.isBlock(node)) {
+        return node;
       }
     }
-  }
+    return false;
+  } 
 
-  function getTopLevelElems(){
-    var topLevelElems = [];
-    for (var node = me.editorElem.firstChild; node != null; node = node.nextSibling){
-      if (needsStem(node)) {
-        topLevelElems.push( node )
-      }
+  function updateStems(){
+    var point = editor.selection().getRange().focus;
+    var previousStem = stem;
+    if (stem){
+      console.log("remove?");
+      stem.remove();
     }
-    return topLevelElems;
+
+    // Get top-level element containing current selection / cursor, if any
+    var elem = getTopLevelBlockElem( point.node )
+    if (!needsStem(elem)){
+      stem.remove()
+    } else {
+      stem = Stem.getOrCreate( elem, onClick, me.containerElem );
+    }
   }
 
   function needsStem (elem) {
     if (!canHaveStem(elem)){
       return false;
     } else {
-      return elem.textContent.trim() === '' && typeof elem.$stem === 'undefined';
+      return elem.textContent.trim() === ''; // && typeof elem.$stem === 'undefined';
     }
   }
 
