@@ -28,14 +28,24 @@ module.exports = function Registry(defaultBus) {
   };
 
   // TODO: extendable handlers by other attributes, whether elem is block or not, etc.
-  me.busFor = function(elem) {
-    assert(elem.nodeType === 1);
-    var tag = elem.tagName.toUpperCase();
+  me.busFleetFor = function(elem) {
+    var fleet = [];
 
-    return (
-      elem[PROP]
-      || tagHandlers[tag]
-      || defaultBus
-      );
+    if (elem.nodeType === 3) {
+      if (elem[PROP]) {
+        fleet.push(elem[PROP]);
+      }
+    } else {
+      assert(elem.nodeType === 1);
+      var tag = elem.tagName.toUpperCase();
+      if (elem[PROP]) {
+        fleet.push(elem[PROP]);
+      }
+      if (tagHandlers[tag]) {
+        fleet.push(tagHandlers[tag]);
+      }
+    }
+
+    return fleet;
   };
 };
