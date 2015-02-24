@@ -212,7 +212,7 @@ exports.isOpen = function(elem) {
   }
   // Check last child node for <br> tag, which opens the element but doesn't
   // show in textContent check
-  if (elem.lastChild and elem.lastChild.tagName === "BR") {
+  if (elem.lastChild && elem.lastChild.tagName === "BR") {
     return true;
   }
 
