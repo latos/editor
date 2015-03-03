@@ -23,7 +23,9 @@ describe('InlineDecorator', function() {
     ['<p>abc<i>sup</i></p><p>hello<b>|sup</b></p>', {'font-weight':['bold']}],
     ['<p>ab[c<i>s]up</i></p><p>hello<b>sup</b></p>', {'font-style':['italic','normal']}],
     ['<p>ab[c<i>sup</i></p><p>hello<b>s]up</b></p>', {'font-style':['italic','normal'], 'font-weight':['bold','normal']}],
-    ['<p>|</p>', {}]
+    ['<p>|</p>', {}],
+
+    ['<p><a href="http://www.google.com">L|ink</a> there.</p>', {'href':['http://www.google.com/']}]
 
   ];
 
@@ -68,7 +70,7 @@ function expandWithDefaults(attrs, defaults) {
     if (!filled[k]) {
       filled[k] = [];
     }
-    if (filled[k].length === 0) {
+    if (filled[k].length === 0 && defaults[k] !== null) {
       filled[k].push(defaults[k]);
     }
   }

@@ -41,7 +41,7 @@ module.exports = function InlineDecorator(wnd) {
     }
 
     // Special case - if our range is collapsed,
-    // then we treat the 
+    // then we treat the
     if (range.isCollapsed()) {
       accumulate(range.getStart().containingElement());
       return attrs;
@@ -87,11 +87,12 @@ module.exports = function InlineDecorator(wnd) {
     function accumulate(elem) {
       var computed = hackComputedStyle(elem, wnd);
 
-      var len = supportedAttributes.length;
       for (var attr in supportedAttributes) {
         var val = computed[attr];
         if (val && attrs[attr].indexOf(val) < 0) {
           attrs[attr].push(val);
+        } else if (elem[attr] && attrs[attr].indexOf(elem[attr]) < 0) {
+          attrs[attr].push(elem[attr]);
         }
       }
     }
@@ -115,12 +116,12 @@ module.exports = function InlineDecorator(wnd) {
     }
   };
 
-  // todo: links
   var supportedAttributes = {     // defaults (unused for now?)
     'font-weight'      : 'normal',
     'font-style'       : 'normal',
     'text-decoration'  : 'none',
-    'color'            : 'inherit'
+    'color'            : 'inherit',
+    'href'             : null
   };
 
   this.getDefaults = function() {
