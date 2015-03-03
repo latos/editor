@@ -24,6 +24,17 @@ function Toolbar(editor) {
 
           me.elem.style.top = (coords.y + 40) + 'px';
           me.elem.style.left = (coords.x - me.elem.offsetWidth/2) + 'px';
+
+          for (idx in me.actions) {
+            var action = me.actions[idx];
+            var isToggled = action.toggleCheck(me.editor);
+            if (isToggled) {
+              action.button.classList.add('qed-button-toggled');
+            } else {
+              action.button.classList.remove('qed-button-toggled');
+            }
+            action.button.onclick = action.toggle(isToggled);
+          }
         })
       } else {
         me.elem.style.display = 'none';
@@ -38,13 +49,21 @@ function Toolbar(editor) {
   me.elem.className = 'qed-toolbar';
 
   me.elem.style.position = 'fixed';
-  me.elem.style.width = '200px';
+  // Default width without any buttons
+  me.width = 2;
+  me.elem.style.width = me.width + 'px';
   me.elem.style.height = '40px';
   me.elem.style.zIndex = '10';
-  me.elem.style.padding = '10px';
   me.elem.style.border = '1px solid silver';
   me.elem.style.background = 'white';
   me.elem.style.boxShadow = '0px 3px 15px rgba(0,0,0,0.2)';
+
+  ul = document.createElement('ul');
+  ul.className = 'qed-toolbar-actions';
+
+  me.elem.appendChild(ul);
+
+  me.actions = [];
 
   document.body.appendChild(me.elem);
 };
@@ -58,14 +77,41 @@ function Toolbar(editor) {
 Toolbar.prototype.addButton = function(label, check, callback) {
   var me = this;
 
-  var newButton = document.createElement("button");
-  buttonLabel = document.createTextNode(label);
-  newButton.appendChild(buttonLabel);
+  var buttonWidth = 30;
 
+  // Create toolbar button
+  var li = document.createElement("li");
+  var newButton = document.createElement("button");
+  var buttonLabel = document.createTextNode(label);
+  newButton.appendChild(buttonLabel);
+  li.appendChild(newButton);
+
+  // Style it
+  newButton.style.width = buttonWidth + 'px';
+  newButton.style.height = '40px';
+  newButton.className = 'qed-toolbar-button';
+
+  li.style.float = 'left';
+
+  // Update toolbar
+  me.width = me.width + buttonWidth;
+  me.elem.style.width = me.width + 'px';
+
+  // Attach action to button
   newButton.onclick=function(){
     callback(me.editor, check(me.editor));
   };
 
-  me.elem.appendChild(newButton);
+  // Attach it to toolbar
+  me.elem.lastChild.appendChild(li);
+  me.actions.push({
+    button: newButton,
+    toggleCheck: check,
+    toggle: function(shouldToggle){
+      return function(){
+        callback(me.editor, shouldToggle);
+      };
+    }
+  });
 };
 

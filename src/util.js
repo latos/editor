@@ -148,7 +148,8 @@ exports.removeClass = function(elem, klass) {
 // TODO: Get rid of this wnd parameter threading,
 // and make a util class that contains wnd as a member var.
 exports.isBlock = function(elem, wnd) {
-  return exports.computedStyle(elem, wnd).display === 'block';
+  styles = exports.computedStyle(elem, wnd);
+  return styles.display === 'block' || styles.display === 'list-item';
 };
 
 /**
