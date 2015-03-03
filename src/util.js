@@ -148,7 +148,8 @@ exports.removeClass = function(elem, klass) {
 // TODO: Get rid of this wnd parameter threading,
 // and make a util class that contains wnd as a member var.
 exports.isBlock = function(elem, wnd) {
-  return exports.computedStyle(elem, wnd).display === 'block';
+  styles = exports.computedStyle(elem, wnd);
+  return styles.display === 'block' || styles.display === 'list-item';
 };
 
 /**
@@ -242,6 +243,36 @@ exports.cleanOpenElem = function(elem) {
   this.ensureOpen(elem);
   return;
 };
+
+/**
+ * Given a point, removes any br tags in the containing element and moves the
+ * point as necessary for any removed nodes.
+ */
+exports.removeBrTags = function(point) {
+  currNode = point.node.parentNode.firstChild;
+  while (currNode != null) {
+    // We remove nodes with BR tag name
+    if (currNode.tagName === 'BR') {
+      // However if we're at the node we're currently pointing to, we need to
+      // move
+      if (currNode.isSameNode(point.node)) {
+        if (currNode.nextSibling == null) {
+          point.moveToEnd(currNode.parentNode);
+        } else {
+          point.moveToBefore(currNode.nextSibling);
+        }
+      }
+
+      removeThis = currNode;
+      currNode = currNode.nextSibling;
+      removeThis.parentNode.removeChild(removeThis);
+    } else {
+      currNode = currNode.nextSibling;
+    }
+  }
+
+  return;
+}
 
 exports.noop = function(){};
 

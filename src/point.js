@@ -360,10 +360,10 @@ function joinRight(joinPoint) {
 
   if (joinPoint.type === BEFORE) {
     // Move each node from the sibling node to the left over to this node
-    do {
+    while (source.hasChildNodes()) {
       var node = source.lastChild;
       dest.insertBefore(node, dest.firstChild);
-    } while (source.hasChildNodes());
+    }
     // Remove the now empty node
     parentNode.removeChild(source);
   }
@@ -411,10 +411,10 @@ function joinLeft(joinPoint) {
   }
 
   if (joinPoint.type === AFTER) {
-    do {
+    while(source.hasChildNodes()) {
       var node = source.firstChild;
       dest.appendChild(node);
-    } while (source.hasChildNodes());
+    }
     parentNode.removeChild(source);
   }
   else if (joinPoint.type === START) {

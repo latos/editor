@@ -12,7 +12,7 @@ var Registry = require('./registry');
  * will cease to be editable.
  *
  * The editor emits a rich set of events which can be handled
- * specially by users. 
+ * specially by users.
  */
 module.exports = function Editor() {
   var me = this;
@@ -37,7 +37,7 @@ module.exports = function Editor() {
   };
 
   var detacher;
-  
+
   /**
    * Attaches the editor to an element
    */
@@ -104,10 +104,13 @@ module.exports = function Editor() {
   /** See EventBus.addListener */
   me.addListener = bus.addListener;
 
+  /** Exposing registry **/
+  me.registry = registry;
+
   // -- private -- //
 
   /**
-   * Registers a map of handlers to an element after wrapping each one, 
+   * Registers a map of handlers to an element after wrapping each one,
    * and returns a function for unregistering them.
    */
   function attachHandlers(elem, handlerMap) {
