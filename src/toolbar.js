@@ -1,6 +1,7 @@
 var util = require('./util');
 var Editor = require('./event-bus');
 var Selection = require('./selection');
+var InlineDecorator = require('./inline-decorator');
 
 module.exports = Toolbar;
 
@@ -113,5 +114,63 @@ Toolbar.prototype.addButton = function(label, check, callback) {
       };
     }
   });
+};
+
+/*
+ * Adds generic link button to toolbar with a default behaviour
+ * label: Can specify a custom label, or will use a default
+ */
+Toolbar.prototype.addDefaultLinkButton = function(label) {
+  var me = this;
+
+  if (!label) {
+    label = 'L';
+  }
+
+  var linkCheck = function(editor) {
+    var iDec = new InlineDecorator();
+
+    styles = iDec.getRangeAttributes(editor.selection().getRange());
+
+    return styles.href && styles.href.length > 0;
+  };
+
+  var linkCallback = function(editor, toggle) {
+
+    // Hide buttons
+    me.elem.firstChild.style.display = 'none';
+
+    // Save selection
+    var range = editor.selection().getRange();
+
+    // Show textbox
+    var urlTextbox = document.createElement("input");
+    me.elem.appendChild(urlTextbox);
+    urlTextbox.focus();
+    urlTextbox.onkeyup = function(e) {
+
+      if (e.keyCode === 13) {
+        // Set browsers selection back on what it was before
+        editor.selection().setEndpoints(range.anchor, range.focus);
+
+        // Add link to selection
+        document.execCommand('createLink', true, urlTextbox.value);
+
+        // Remove textbox
+        me.elem.removeChild(urlTextbox);
+
+        // Show buttons
+        me.elem.firstChild.style.display = 'block';
+
+        return true;
+      }
+
+      return;
+    };
+
+    return;
+  };
+
+  this.addButton(label, linkCheck, linkCallback);
 };
 
