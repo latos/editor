@@ -67,15 +67,14 @@ module.exports = function InlineDecorator(wnd) {
         continue;
       }
 
-      var el = it.leaveElement();
-      if (el) {
-        continue;
-      }
-
-
       var txt = it.skipText();
       if (txt) {
         accumulate(txt.start.containingElement());
+        continue;
+      }
+
+      var el = it.leaveElement();
+      if (el) {
         continue;
       }
 
