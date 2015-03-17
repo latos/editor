@@ -41,6 +41,13 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     return ev;
   }
 
+  function decorateRangedKeyEvent(ev, keyType, range) {
+    ev.keyType     = keyType;
+    ev.range       = range;
+    ev.keyCategory = keycodes.computeKeyType(ev);
+    return ev;
+  }
+
   function isAttached(node) {
     return util.isOrHasChild(getRootElem(), node);
   }
@@ -127,7 +134,17 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
   }
 
   function handleRangedKeydown(e, range) {
-    return;
+    var info = getKeyInfo(e.keyCode);
+
+    // We just send this directly to default bus as there isn't a specific
+    // element to bubble up on
+    var handled = handleEvent(registry.defaultHandler(), 'rangedkey',
+      decorateRangedKeyEvent(e, info.type, range));
+    if (!handled) {
+      console.warn("No handlers handled rangedKeyDown event - handlers need to be fixed to return true");
+    }
+
+    return true;
   }
 
   me.handlers = {
