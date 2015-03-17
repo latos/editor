@@ -8,7 +8,8 @@ window.qed = {
   Toolbar: require('./toolbar'),
   StemTracker: require('./stems/stem-tracker'),
   InlineDecorator: require('./inline-decorator'),
-  util: require('./util')
+  util: require('./util'),
+  keycodes: require('./keycodes')
 
   // TODO: Just export all the classes so people can put them together
   //       however they like.

@@ -2,6 +2,7 @@
 
 var util = require('./util');
 var keycodes = require('./keycodes');
+var codes = keycodes.codes
 var Point = require('./point');
 
 var assert = util.assert;
@@ -38,6 +39,13 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
   function decorateKeyEvent(ev, keyType, point) {
     ev.keyType = keyType;
     ev.point = point;
+    return ev;
+  }
+
+  function decorateRangedKeyEvent(ev, keyType, range) {
+    ev.keyType     = keyType;
+    ev.range       = range;
+    ev.keyCategory = keycodes.computeKeyType(ev);
     return ev;
   }
 
@@ -142,7 +150,17 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
   }
 
   function handleRangedKeydown(e, range) {
-    return;
+    var info = getKeyInfo(e.keyCode);
+
+    // We just send this directly to default bus as there isn't a specific
+    // element to bubble up on
+    var handled = handleEvent(registry.defaultHandler(), 'rangedkey',
+      decorateRangedKeyEvent(e, info.type, range));
+    if (!handled) {
+      console.warn("No handlers handled rangedKeyDown event - handlers need to be fixed to return true");
+    }
+
+    return true;
   }
 
   me.handlers = {
@@ -203,11 +221,11 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
   var BUBBLE_RIGHT = 'right';
 
   var KEY_INFO = {};
-  KEY_INFO[keycodes.LEFT] =      keyInfo(BUBBLE_LEFT, 'left');
-  KEY_INFO[keycodes.BACKSPACE] = keyInfo(BUBBLE_LEFT, 'backspace');
+  KEY_INFO[codes.LEFT] =      keyInfo(BUBBLE_LEFT, 'left');
+  KEY_INFO[codes.BACKSPACE] = keyInfo(BUBBLE_LEFT, 'backspace');
 
-  KEY_INFO[keycodes.RIGHT] =     keyInfo(BUBBLE_RIGHT, 'right');
-  KEY_INFO[keycodes.DELETE] =    keyInfo(BUBBLE_RIGHT, 'delete');
+  KEY_INFO[codes.RIGHT] =     keyInfo(BUBBLE_RIGHT, 'right');
+  KEY_INFO[codes.DELETE] =    keyInfo(BUBBLE_RIGHT, 'delete');
 
   ///**
   // * {point:, next:}
