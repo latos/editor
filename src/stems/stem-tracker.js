@@ -13,7 +13,6 @@ var Stem = require("./stem");
 function StemTracker(editor, onClick) {
   var me = this;
   var stems = [];
-  var topLevelTags = ['p', 'h1', 'h2', 'h3', 'div', 'section'];
 
   this.editorElem = editor.currentElem();
   this.containerElem = this.createDom();
@@ -33,7 +32,7 @@ function StemTracker(editor, onClick) {
     stems = [];
 
     /** Loops through all top level elements */
-    var topLevelElems = getTopLevelElems( topLevelTags );
+    var topLevelElems = getTopLevelElems();
     for (var i=0; i < topLevelElems.length; i++){
       var elem = topLevelElems[i];
       var stem = Stem.getOrCreate( elem, onClick, me.containerElem );
@@ -49,7 +48,7 @@ function StemTracker(editor, onClick) {
     }
   }
 
-  function getTopLevelElems(tags){
+  function getTopLevelElems(){
     var topLevelElems = [];
     for (var node = me.editorElem.firstChild; node != null; node = node.nextSibling){
       if (needsStem(node)) {
