@@ -87,8 +87,17 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         }
 
         // If we reach editor node without handling, exit loop and use defaultBus
-        if (!next || !isAttached(next.node)) {
+        if (!next) {
           break;
+        }
+
+        // Check in case the dom has changed as a result of the handler
+        // The handler *should* have returned true in that case, but it could be
+        // buggy
+        if (!isAttached(next.node)) {
+          console.warn("Node for next point no longer attached - " +
+            "handler needs to be fixed to return true");
+          return true;
         }
 
         currPoint = next;
@@ -115,8 +124,17 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         }
 
         // If we reach editor node without handling, exit loop and use defaultBus
-        if (!isAttached(next)) {
+        if (!next) {
           break;
+        }
+
+        // Check if we have become unattached as a result of the handler
+        // The handler *should* have returned true in that case, but it could be
+        // buggy
+        if (!isAttached(next)) {
+          console.warn("Node for next point no longer attached - " +
+            "handler needs to be fixed to return true");
+          return true;
         }
 
         node = next;
@@ -127,10 +145,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     // defaultBus
     var handled = handleEvent(registry.defaultHandler(), 'key',
       decorateKeyEvent(e, info.type, point));
-    if (!handled) {
-      console.warn("No handlers handled event - handlers need to be fixed to return true");
-      return true;
-    }
+    return handled;
   }
 
   function handleRangedKeydown(e, range) {
@@ -140,11 +155,8 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     // element to bubble up on
     var handled = handleEvent(registry.defaultHandler(), 'rangedkey',
       decorateRangedKeyEvent(e, info.type, range));
-    if (!handled) {
-      console.warn("No handlers handled rangedKeyDown event - handlers need to be fixed to return true");
-    }
 
-    return true;
+    return handled;
   }
 
   me.handlers = {
