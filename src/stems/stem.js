@@ -24,11 +24,10 @@ function Stem(blockElem, onClick, containerElem) {
   this.addStyles();
 
   // Handle click event
-  this.stemButton.addEventListener( 'click', function(me) {
-    return function(e) {
-      onClick(e, me);
-    };
-  }(this), false);
+  var me = this;
+  this.stemButton.addEventListener( 'click', function(e) {
+    onClick(e, me);
+  }, false);
 
 }
 
