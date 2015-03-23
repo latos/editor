@@ -28,18 +28,19 @@ module.exports = function Registry(defaultBus) {
   };
 
   // TODO: extendable handlers by other attributes, whether elem is block or not, etc.
-  me.busFleetFor = function(elem) {
+  // Accepts dom elements. If given a text node, will just return empty fleet.
+  me.busFleetFor = function(node) {
     var fleet = [];
 
-    if (elem.nodeType === 3) {
-      if (elem[PROP]) {
-        fleet.push(elem[PROP]);
-      }
+    // Ideally we would only accept elements, but to be generous and flexible
+    // with points inside text nodes we return gracefully for text nodes.
+    if (node.nodeType === 3) {
+      return [];
     } else {
-      assert(elem.nodeType === 1);
-      var tag = elem.tagName.toUpperCase();
-      if (elem[PROP]) {
-        fleet.push(elem[PROP]);
+      assert(node.nodeType === 1);
+      var tag = node.tagName.toUpperCase();
+      if (node[PROP]) {
+        fleet.push(node[PROP]);
       }
       if (tagHandlers[tag]) {
         fleet.push(tagHandlers[tag]);
