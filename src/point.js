@@ -14,11 +14,11 @@ var AFTER  = 'after';
  * normally needed for complex low-level DOM manipulations.
  *
  * Points offer a semi-opaque abstraction over the multiple
- * ways a particular DOM location can be represented. 
+ * ways a particular DOM location can be represented.
  *
- * For example, when comparing points, the "start" of a 
- * paragraph, a point "before" its first text node, and 
- * a point at offset 0 of the first text node, are all considered 
+ * For example, when comparing points, the "start" of a
+ * paragraph, a point "before" its first text node, and
+ * a point at offset 0 of the first text node, are all considered
  * equivalent -- althought, the differences in representation
  * are accessible if needed.
  */
@@ -133,7 +133,7 @@ function Point(check) {
   assert(check === magic, 'do not construct Point directly');
 };
 Point.prototype.toString = function() {
-  return '[' + this.type + ' ' + this.node + 
+  return '[' + this.type + ' ' + this.node +
       (this.type === TEXT ? ':' + this.offset : '') + ']';
 };
 
@@ -193,10 +193,10 @@ Point.prototype.toNodeOffset = function() {
     case START: return [this.node, 0];
     case END: return [this.node, this.node.childNodes.length];
     case BEFORE: return [
-        checkHasParent(this.node).parentNode, 
+        checkHasParent(this.node).parentNode,
         childIndex(this.node)];
     case AFTER: return [
-        checkHasParent(this.node).parentNode, 
+        checkHasParent(this.node).parentNode,
         childIndex(this.node) + 1];
     default: assert(false);
   }
@@ -261,9 +261,9 @@ function splitRight(splitPoint, splitWith) {
   splitPoint.ensureInsertable();
   splitPoint = splitPoint.rightNormalized();
   var avoidSplittingIfPossible = !splitWith;
-  
+
   var resultPoint = Point.after(splitPoint.containingElement());
-  
+
   if (resultPoint.type === END && avoidSplittingIfPossible) {
     return resultPoint;
   }
@@ -356,7 +356,11 @@ function joinRight(joinPoint) {
     return Point.before(joinPoint.node);
   }
 
-  resultPoint = Point.before(dest.firstChild);
+  if (dest.hasChildNodes()) {
+    resultPoint = Point.before(dest.firstChild);
+  } else {
+    resultPoint = Point.end(dest);
+  }
 
   if (joinPoint.type === BEFORE) {
     // Move each node from the sibling node to the left over to this node
@@ -373,9 +377,9 @@ function joinRight(joinPoint) {
     assert(false);
   }
 
-  // Before normalizing, check if the result point and the (new) previous sibling node are text.
+  // Before normalizing, check if the result point and any (new) previous sibling node are text.
   // If so set the offset to the length of the previous sibling's text
-  if (resultPoint.node.nodeType === 3 && resultPoint.node.previousSibling.nodeType === 3) {
+  if (resultPoint.node.previousSibling && resultPoint.node.nodeType === 3 && resultPoint.node.previousSibling.nodeType === 3) {
     resultPoint.moveToText(resultPoint.node, resultPoint.node.previousSibling.length);
   }
 
@@ -404,7 +408,9 @@ function joinLeft(joinPoint) {
     return Point.after(joinPoint.node);
   }
 
-  if (dest.lastChild.nodeType === 3) {
+  if (!dest.hasChildNodes()) {
+    resultPoint = Point.start(dest);
+  } else if (dest.lastChild.nodeType === 3) {
     resultPoint = Point.text(dest.lastChild, dest.lastChild.textContent.length);
   } else {
     resultPoint = Point.after(dest.lastChild);
