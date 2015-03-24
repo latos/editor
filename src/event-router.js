@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('./util');
-var keycodes = require('./keycodes');
+var keycodes = require('./keycodes').codes;
 var Point = require('./point');
 
 var assert = util.assert;
