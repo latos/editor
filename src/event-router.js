@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('./util');
-var keycodes = require('./keycodes');
+var keycodes = require('./keycodes').codes;
 var Point = require('./point');
 
 var assert = util.assert;
@@ -41,6 +41,13 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     return ev;
   }
 
+  function decorateRangedKeyEvent(ev, keyType, range) {
+    ev.keyType     = keyType;
+    ev.range       = range;
+    ev.keyCategory = keycodes.computeKeyType(ev);
+    return ev;
+  }
+
   function isAttached(node) {
     return util.isOrHasChild(getRootElem(), node);
   }
@@ -60,64 +67,96 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     var dir = info.dir;
 
     if (dir !== 'up') {
-      point = point.copy();
+      var currPoint = point.copy();
       var count = 0;
       while (true) {
         if (count++ > 100) {
-          throw new Error("Coudn't resolve bubbling");
+          throw new Error("Couldn't resolve bubbling");
         }
-        var next = bubblers[dir](point);
+        var next = bubblers[dir](currPoint);
 
-        var handled = handleEvent(registry.busFor(point.node),
-            'key', decorateKeyEvent(e, info.type, point));
+        // Loop over the fleet of busses, return true if one of them handles it
+        var fleet = registry.busFleetFor(currPoint.node);
 
-        if (handled || !next) {
-          return handled;
+        for (var bus in fleet) {
+          var handled = handleEvent(fleet[bus], 'key', decorateKeyEvent(e, info.type, currPoint));
+
+          if (handled) {
+            return handled;
+          }
         }
 
-        // check in case the dom has changed as a result of the handler.
-        // the handler *should* have returned true in that case, but
-        // it could also be buggy, so...
+        // If we reach editor node without handling, exit loop and use defaultBus
+        if (!next) {
+          break;
+        }
+
+        // Check in case the dom has changed as a result of the handler
+        // The handler *should* have returned true in that case, but it could be
+        // buggy
         if (!isAttached(next.node)) {
-          console.warn("node for next point no longer attached - " + 
-              "handler needs to be fixed to return true!");
+          console.warn("Node for next point no longer attached - " +
+            "handler needs to be fixed to return true");
           return true;
         }
 
-        point = next;
+        currPoint = next;
       }
     } else {
       var node = point.node;
+      var count = 0;
       while (true) {
         if (count++ > 100) {
-          throw new Error("Coudn't resolve bubbling");
+          throw new Error("Couldn't resolve bubbling");
         }
 
         var next = node.parentNode;
         next = isAttached(next) ? next : null;
 
-        var handled = handleEvent(registry.busFor(node),
-            'key', decorateKeyEvent(e, info.type, point));
+        var fleet = registry.busFleetFor(node);
 
-        if (handled || !next) {
-          return handled;
+        for (var bus in fleet) {
+          var handled = handleEvent(fleet[bus], 'key', decorateKeyEvent(e, info.type, point));
+
+          if (handled) {
+            return handled;
+          }
         }
-        
+
+        // If we reach editor node without handling, exit loop and use defaultBus
+        if (!next) {
+          break;
+        }
+
+        // Check if we have become unattached as a result of the handler
+        // The handler *should* have returned true in that case, but it could be
+        // buggy
         if (!isAttached(next)) {
-          console.warn("node for next point no longer attached - " + 
-              "handler needs to be fixed to return true!");
+          console.warn("Node for next point no longer attached - " +
+            "handler needs to be fixed to return true");
           return true;
         }
 
         node = next;
       }
-
-      return false;
     }
+
+    // If we are no longer in the loop, we've exhausted handlers except for the
+    // defaultBus
+    var handled = handleEvent(registry.defaultHandler(), 'key',
+      decorateKeyEvent(e, info.type, point));
+    return handled;
   }
 
   function handleRangedKeydown(e, range) {
-    return;
+    var info = getKeyInfo(e.keyCode);
+
+    // We just send this directly to default bus as there isn't a specific
+    // element to bubble up on
+    var handled = handleEvent(registry.defaultHandler(), 'rangedkey',
+      decorateRangedKeyEvent(e, info.type, range));
+
+    return handled;
   }
 
   me.handlers = {
@@ -250,7 +289,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
 //  // TODO: bubble back into elements if they are inline, etc.
 //  function xbubbleLeft(point, func) {
 //    var elem;
-//    
+//
 //    point = point.leftNormalized();
 //
 //    elem = point.elemStartingAt();
@@ -261,14 +300,14 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
 //      if (isTerminal(elem)) {
 //        return;
 //      }
-//      return 
+//      return
 //    } else {
 //      elem = point.elemBefore();
 //      if (func(point, 'before', elem)) {
 //        return;
 //      }
 //    }
-//    
+//
 //    xxx todo
 //    return bubbleLeft(point
 //  }

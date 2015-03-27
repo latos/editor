@@ -9,6 +9,9 @@ var util = require("./../util");
  * that appear beside an empty block level element.
  */
 
+ // Define the button height for use across the stem button
+ var buttonDiameter = 30;
+
 function Stem(blockElem, onClick, containerElem) {
   util.assert(!blockElem.$stem);
 
@@ -21,8 +24,9 @@ function Stem(blockElem, onClick, containerElem) {
   this.addStyles();
 
   // Handle click event
-  this.stemButton.addEventListener( 'click', function() {
-    onClick();
+  var me = this;
+  this.stemButton.addEventListener( 'click', function(e) {
+    onClick(e, me);
   }, false);
 
 }
@@ -42,7 +46,11 @@ Stem.prototype.remove = function() {
 /** Reposition the button. */
 Stem.prototype.reposition = function() {
   var coords = this.blockElem.getBoundingClientRect();
-  this.stemButton.style.top = (coords.top - (this.stemButton.offsetHeight * 4)) + 'px';
+  var boundingCoords = this.blockElem.parentNode.getBoundingClientRect();
+  var centering = (coords.height / 2) - (buttonDiameter / 2);
+  //var centering = 0;
+  this.stemButton.style.top = (coords.top - boundingCoords.top + centering) + 'px';
+  //this.stemButton.style.top = (coords.top - (this.stemButton.offsetHeight * 4)) + 'px';
 }
 
 /** Adds a Stem Button to DOM */
@@ -59,8 +67,8 @@ Stem.prototype.addStyles = function() {
   this.stemButton.style.background = "#fff";
   this.stemButton.style.border = "1px solid #ccc";
   this.stemButton.style.position = "absolute";
-  this.stemButton.style.width = "30px";
-  this.stemButton.style.height = "30px";
+  this.stemButton.style.width = buttonDiameter + "px";
+  this.stemButton.style.height = buttonDiameter + "px";
   this.stemButton.style['border-radius'] = "100px";
   this.stemButton.style['line-height'] =  "30px";
   this.stemButton.style['text-align'] =  "center";
