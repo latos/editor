@@ -7,6 +7,7 @@ window.qed = {
   // Plugins for core editor
   Toolbar: require('./toolbar'),
   StemTracker: require('./stems/stem-tracker'),
+  Placeholders: require('./placeholders/placeholder-tracker'),
   InlineDecorator: require('./inline-decorator'),
   util: require('./util'),
   keycodes: require('./keycodes')

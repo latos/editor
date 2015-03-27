@@ -57,6 +57,7 @@ window.onload = function() {
   var Editor = qed.Editor;
   var Toolbar = qed.Toolbar;
   var StemTracker = qed.StemTracker;
+  var Placeholders = qed.Placeholders;
 
   var editor = new Editor();
   editor.addListener({
@@ -99,6 +100,10 @@ window.onload = function() {
     /* Click handler goes here */
   });
   var toolbar = new Toolbar(editor);
+
+  var placeholders = new Placeholders(editor);
+  placeholders.addPlaceholder('P', "lol text");
+  placeholders.startTracking();
 
   function showContent() {
     $('content').innerHTML = '';
