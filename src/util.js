@@ -208,12 +208,12 @@ exports.rateLimited = function(intervalMillis, func) {
  * paragraph has zero height, unless held 'open' by some text or an element)
  */
 exports.isOpen = function(elem) {
-  if (elem.textContent.length > 0) {
+  if (elem.textContent.trim().length > 0) {
     return true;
   }
   // Check last child node for <br> tag, which opens the element but doesn't
   // show in textContent check
-  if (elem.lastChild && elem.lastChild.tagName === "BR") {
+  if (elem.lastElementChild && elem.lastElementChild.tagName === "BR") {
     return true;
   }
 
