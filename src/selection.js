@@ -94,18 +94,25 @@ function Selection(nativeSelection) {
 // TODO: refactor as needed.
 function getSelectionCoords() {
   var sel = document.selection, range, rects, rect;
-  var x = 0, y = 0;
+  var x = 0, y = 0, width = 0;
   if (sel) {
     if (sel.type != "Control") {
       range = sel.createRange();
       range.collapse(true);
       x = range.boundingLeft;
       y = range.boundingTop;
+      width = range.boundingWidth;
     }
   } else if (window.getSelection) {
     sel = window.getSelection();
     if (sel.rangeCount) {
       range = sel.getRangeAt(0).cloneRange();
+      // Get width before collapsing
+      if (range.getBoundingClientRect) {
+        var rect = range.getBoundingClientRect();
+        width = rect.right - rect.left;
+      }
+      // Collapse and get coords
       if (range.getClientRects) {
         range.collapse(true);
         rects = range.getClientRects();
@@ -126,6 +133,7 @@ function getSelectionCoords() {
           rect = span.getClientRects()[0];
           x = rect.left;
           y = rect.top;
+          width = rect.right - rect.left;
           var spanParent = span.parentNode;
           spanParent.removeChild(span);
 
@@ -135,5 +143,5 @@ function getSelectionCoords() {
       }
     }
   }
-  return { x: x, y: y };
+  return { x: x, y: y, width: width };
 }
