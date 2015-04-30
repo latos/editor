@@ -20,11 +20,7 @@ function Toolbar(editor) {
 
         // Do it in a timeout so it can calculate accurately.
         setTimeout(function() {
-          var coords = selection.getCoords();
-          console.log(coords);
-
-          me.elem.style.top = (coords.y + 40) + 'px';
-          me.elem.style.left = (coords.x - me.elem.offsetWidth/2) + 'px';
+          me.reposition(selection);
 
           for (idx in me.actions) {
             var action = me.actions[idx];
@@ -44,17 +40,16 @@ function Toolbar(editor) {
       return false;
     }
   });
+  
+
 
   // TODO: use dom DSL lib instead of all this boilerplate.
   me.elem = document.createElement('div');
   me.elem.className = 'qed-toolbar';
 
   me.elem.style.position = 'fixed';
-  // Default width without any buttons
-  me.width = 2;
   me.elem.style.width = me.width + 'px';
-  me.elem.style.height = '40px';
-  me.elem.style.zIndex = '10';
+  me.elem.style.zIndex = '1000';
   me.elem.style.border = '1px solid silver';
   me.elem.style.background = 'white';
   me.elem.style.boxShadow = '0px 3px 15px rgba(0,0,0,0.2)';
@@ -66,8 +61,25 @@ function Toolbar(editor) {
 
   me.actions = [];
 
+  // Reposition toolbar when window is resized.
+  var debouncedReposition = util.debounce( function(event) {
+    var selection = me.editor.selection();
+    me.reposition(selection);
+  }, 5, true);
+  window.addEventListener('resize', debouncedReposition);
+  document.addEventListener('scroll', debouncedReposition);
+
   document.body.appendChild(me.elem);
 };
+
+/* Reposition the toolbar relative to the selection */
+Toolbar.prototype.reposition = function(selection) {
+  var me = this;
+  var coords = selection.getCoords();
+  me.elem.style.top = (coords.y - 60) + 'px';
+  me.elem.style.left = ( (coords.x + (coords.width / 2)) - me.elem.offsetWidth/2 ) + 'px';
+};
+
 
 /*
  * Add a button to the toolbar
