@@ -138,6 +138,19 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
     label = 'L';
   }
 
+  // We add a listener to refresh the toolbar on selection if
+  // the link text box is still active
+  me.editor.addListener({
+    onSelection: function(selection) {
+      if (me.urlTextbox) {
+        me.elem.remove(me.urlTextbox);
+        me.urlTextbox = null;
+        me.elem.firstChild.style.display = 'inline';
+      }
+      return false;
+    }
+  });
+
   var linkCheck = function(editor) {
     var iDec = new InlineDecorator();
 
@@ -157,6 +170,7 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
     // Show textbox
     var urlTextbox = document.createElement("input");
     me.elem.appendChild(urlTextbox);
+    me.urlTextbox = urlTextbox;
     urlTextbox.focus();
     urlTextbox.onkeyup = function(e) {
 
