@@ -62,7 +62,7 @@ function StemTracker(editor, onClick) {
     if (!canHaveStem(elem)){
       return false;
     } else {
-      return elem.textContent === '' && typeof elem.$stem === 'undefined';
+      return elem.textContent.trim() === '' && typeof elem.$stem === 'undefined';
     }
   }
 
