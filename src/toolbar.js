@@ -95,8 +95,7 @@ Toolbar.prototype.addButton = function(label, check, callback) {
   // Create toolbar button
   var li = document.createElement("li");
   var newButton = document.createElement("button");
-  var buttonLabel = document.createTextNode(label);
-  newButton.appendChild(buttonLabel);
+  newButton.innerHTML = label;
   li.appendChild(newButton);
 
   // Style it
