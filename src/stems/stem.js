@@ -45,12 +45,14 @@ Stem.prototype.remove = function() {
 
 /** Reposition the button. */
 Stem.prototype.reposition = function() {
-  var coords = this.blockElem.getBoundingClientRect();
-  var boundingCoords = this.blockElem.parentNode.getBoundingClientRect();
-  var centering = (coords.height / 2) - (buttonDiameter / 2);
-  //var centering = 0;
-  this.stemButton.style.top = (coords.top - boundingCoords.top + centering) + 'px';
-  //this.stemButton.style.top = (coords.top - (this.stemButton.offsetHeight * 4)) + 'px';
+  var elemCoords      = this.blockElem.getBoundingClientRect();
+  var containerCoords = this.containerElem.getBoundingClientRect();
+
+  /* We need to shift the button to center it on the line */
+  var buttonCoords = this.stemButton.getBoundingClientRect();
+  var centering    = (coords.height / 2) - (buttonCoords.height / 2);
+
+  this.stemButton.style.top = (elemCoords.top - containerCoords.top + centering) + 'px';
 }
 
 /** Adds a Stem Button to DOM */
