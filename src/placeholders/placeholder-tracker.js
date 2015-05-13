@@ -53,7 +53,7 @@ function PlaceholderTracker(editor) {
     for (var node = me.editorElem.firstChild; node != null; node = node.nextSibling) {
       if (needsPlaceholder(node)) {
         var placeholder = Placeholder.getOrCreate(node, me);
-        placeholder.position();
+        placeholder.reposition();
         me.places.push(placeholder);
       } else if (node.$placeholder) {
         node.$placeholder.remove();
@@ -86,6 +86,7 @@ function PlaceholderTracker(editor) {
     c.style.left = "0px";
     return c;
   };
+
 }
 
 module.exports = PlaceholderTracker;
