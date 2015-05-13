@@ -37,6 +37,7 @@ function StemTracker(editor, onClick) {
       var elem = topLevelElems[i];
       var stem = Stem.getOrCreate( elem, onClick, me.containerElem );
       stems.push(stem);
+      stem.reposition();
     }
 
     /** Removes orphaned stems */
