@@ -32,9 +32,14 @@ function Selection(nativeSelection) {
     native.setBaseAndExtent(anchorPair[0], anchorPair[1], focusPair[0], focusPair[1]);
   };
 
-  /** Convenience function - returns true if the selection is collapsed */
+  /** Convenience function - returns true if the selection is collapsed or there is no range*/
   me.isCollapsed = function() {
-    return me.getRange().isCollapsed();
+    var range = me.getRange();
+    if (range) {
+	  return range.isCollapsed();
+    } else {
+      return true;
+    }
   };
 
   me.getRange = function() {
