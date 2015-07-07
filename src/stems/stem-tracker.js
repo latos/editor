@@ -39,10 +39,16 @@ function StemTracker(editor, onClick) {
       }
     }
     return false;
-  } 
+  }
 
   function updateStems(){
-    var point = editor.selection().getRange().focus;
+    var range = editor.selection().getRange();
+    // We may get the mouse up event when we have no selection, so check that
+    // the selection has a range
+    if (!range) {
+      return;
+    }
+    var point = range.focus;
     var previousStem = stem;
     if (stem){
       stem.remove();
