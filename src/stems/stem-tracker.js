@@ -8,16 +8,24 @@ var Stem = require("./stem");
  * A stem is a widget insertion button. It signifies a potential widget.
  * The tracking utility manages the absolute positioning of these stems,
  * as well as their addition and removal from the DOM.
+ *
+ * Exclusions can be added so that certain nodes don't have stems created for
+ * them. The strings in the exclusions array should be lowercase.
  */
 
-function StemTracker(editor, onClick) {
+function StemTracker(editor, exclusions, onClick) {
   var me = this;
   var stem;
-  var topLevelTags = ['p', 'h1', 'h2', 'h3', 'div', 'section'];
+
+  if (typeof exclusions === 'function') {
+    onClick = exclusions;
+    exclusions = [];
+  }
 
   this.editorElem = editor.currentElem();
   this.containerElem = this.createDom();
   this.reposition();
+  this.exclusions = exclusions;
 
   /** Listen for changes in content and update. */
   editor.addListener({
@@ -74,7 +82,11 @@ function StemTracker(editor, onClick) {
   }
 
   function canHaveStem(elem) {
-    return util.isElement(elem) && util.isBlock(elem) && util.isEditable(elem);
+    if (util.isElement(elem) && util.isBlock(elem) && util.isEditable(elem)) {
+      return me.exclusions.indexOf(elem.tagName.toLowerCase()) < 0;
+    } else {
+      return false;
+    }
   }
 
 }
