@@ -114,7 +114,7 @@ function getSelectionCoords() {
       range = sel.getRangeAt(0).cloneRange();
       // Get width before collapsing
       if (range.getBoundingClientRect) {
-        var rect = range.getBoundingClientRect();
+        rect = range.getBoundingClientRect();
         width = rect.right - rect.left;
       }
       // Collapse and get coords
@@ -124,8 +124,10 @@ function getSelectionCoords() {
         if (rects.length > 0) {
           rect = range.getClientRects()[0];
         }
-        x = rect.left;
-        y = rect.top;
+        if (rect) {
+          x = rect.left;
+          y = rect.top;
+        }
       }
       // Fall back to inserting a temporary element
       if (x == 0 && y == 0) {
