@@ -22,14 +22,26 @@ function Selection(nativeSelection) {
   me.setCaret = function(point) {
     var pair = Point.check(point).toNodeOffset();
 
-    native.setBaseAndExtent(pair[0], pair[1], pair[0], pair[1]);
+    me.setBaseAndExtent(pair[0], pair[1], pair[0], pair[1]);
   };
 
   me.setEndpoints = function(anchor, focus) {
     var anchorPair = Point.check(anchor).toNodeOffset();
     var focusPair = Point.check(focus).toNodeOffset();
 
-    native.setBaseAndExtent(anchorPair[0], anchorPair[1], focusPair[0], focusPair[1]);
+    me.setBaseAndExtent(anchorPair[0], anchorPair[1], focusPair[0], focusPair[1]);
+  };
+
+  me.setBaseAndExtent = function(anchorParent, anchorOffset, focusParent, focusOffset) {
+    if (native.setBaseAndExtent) {
+      native.setBaseAndExtent(anchorParent, anchorOffset, focusParent, focusOffset);
+    } else {
+      // Using Firefox caret setting methods as backup
+      var fRange = native.getRangeAt(0);
+      fRange.setStart(anchorParent, anchorOffset);
+      fRange.setEnd(focusParent, focusOffset);
+
+    }
   };
 
   /** Convenience function - returns true if the selection is collapsed or there is no range*/
@@ -138,9 +150,11 @@ function getSelectionCoords() {
           span.appendChild( document.createTextNode("\u200b") );
           range.insertNode(span);
           rect = span.getClientRects()[0];
-          x = rect.left;
-          y = rect.top;
-          width = rect.right - rect.left;
+          if (rect) {
+            x = rect.left;
+            y = rect.top;
+            width = rect.right - rect.left;
+          }
           var spanParent = span.parentNode;
           spanParent.removeChild(span);
 
