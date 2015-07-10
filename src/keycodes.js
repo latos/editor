@@ -41,7 +41,7 @@ module.exports.computeKeyType = function (e) {
   } else if (keycode === me.codes.ENTER) {
     type = me.types.ENTER;
   // Input
-  } else if (e.keyIdentifier.match("^U\+")) {
+  } else if ((e.keyIdentifier && e.keyIdentifier.match("^U\+")) || (e.type && e.type === 'keydown')) {
     type = me.types.INPUT;
   // No effect
   } else {
