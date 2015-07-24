@@ -212,7 +212,10 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     compositionend: wrap(),
     DOMSubtreeModified: wrap(function(e) {
       scheduleContentChangeNotifier();
-    })
+    }),
+    paste: wrap(),
+    copy: wrap(),
+    cut: wrap()
   };
 
   // Logical directions (within the dom)
