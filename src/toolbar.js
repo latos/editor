@@ -221,3 +221,9 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
 
   this.addButton(label, linkCheck, linkCallback);
 };
+
+Toolbar.prototype.remove = function() {
+  var me = this;
+
+  me.elem.parentElement.removeChild(me.elem);
+};
