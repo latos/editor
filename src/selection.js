@@ -48,7 +48,7 @@ function Selection(nativeSelection) {
   me.isCollapsed = function() {
     var range = me.getRange();
     if (range) {
-	  return range.isCollapsed();
+    return range.isCollapsed();
     } else {
       return true;
     }
@@ -76,9 +76,29 @@ function Selection(nativeSelection) {
   me.saveToMarkers = function() {
     me.clearMarkers();
 
-    var sel = me.getRange();
-    sel.anchor.insert(markers[0]);
+    var sel = me.getRange().order();
     sel.focus.insert(markers[1]);
+    sel.anchor.insert(markers[0]);
+  };
+
+  me.loadFromMarkers = function() {
+    var start = Point.before(markers[0]).leftNormalized();
+    var end = Point.after(markers[1]).rightNormalized();
+
+    me.setEndpoints(start, end);
+    me.clearMarkers();
+  };
+
+  me.setMarkers = function(newMarkers) {
+    markers[0] = newMarkers.start;
+    markers[1] = newMarkers.end;
+  };
+
+  me.getMarkers = function() {
+    return {
+      start: Point.before(markers[0]).leftNormalized(),
+      end: Point.after(markers[1]).rightNormalized()
+    };
   };
 
   me.clearMarkers = function() {
