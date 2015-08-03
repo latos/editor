@@ -80,7 +80,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         var fleet = registry.busFleetFor(currPoint.node);
 
         for (var bus in fleet) {
-          var handled = handleEvent(fleet[bus], 'key', decorateKeyEvent(e, info.type, currPoint));
+          var handled = handleEvent(fleet[bus], 'key', decorateKeyEvent(e, info.type, point));
 
           if (handled) {
             return handled;
@@ -371,7 +371,7 @@ EventRouter.bubbleLeft = function bubbleLeft(point) {
   }
 
   // directional bubbling doesn't traverse into nodes, only outwards.
-  return null;
+  return Point.before(node);
 }
 
 
@@ -395,7 +395,7 @@ EventRouter.bubbleRight = function bubbleRight(point) {
   }
 
   // directional bubbling doesn't traverse into nodes, only outwards.
-  return null;
+  return Point.after(node);
 }
 
 
