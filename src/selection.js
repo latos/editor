@@ -14,8 +14,9 @@ module.exports = Selection;
  * facilities to manipulate, save, restore the
  * selection, across DOM modifications.
  */
-function Selection(nativeSelection) {
+function Selection(nativeSelection, editor) {
   var me = this;
+  me.editor = editor;
 
   var native = me.native = assert(nativeSelection);
 
@@ -48,15 +49,36 @@ function Selection(nativeSelection) {
   me.isCollapsed = function() {
     var range = me.getRange();
     if (range) {
-    return range.isCollapsed();
+      return range.isCollapsed();
     } else {
       return true;
     }
   };
 
+  /** Helper function - returns true if the selection is within the editor elem */
+  me.withinEditor = function() {
+    if (!native.anchorNode || !native.focusNode) {
+      return false;
+    } else {
+      var within = false;
+
+      try {
+        within = util.compareNodes(me.editor.currentElem(), native.anchorNode) === "parent" &&
+        util.compareNodes(me.editor.currentElem(), native.focusNode) === "parent"
+      } catch (e) {
+        within = false;
+      }
+
+      return within;
+    }
+  };
+
+  /** If selection is not within editor, or no caret, returns null. Otherwise
+  returns a Range for the current selection. */
   me.getRange = function() {
-    // TODO: Check for selection within editor and return null if none.
     if (!native.anchorNode) {
+      return null;
+    } else if (!me.withinEditor()) {
       return null;
     }
     return new Range(
