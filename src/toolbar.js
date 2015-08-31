@@ -15,7 +15,7 @@ function Toolbar(editor) {
 
   editor.addListener({
     onSelection: function(selection) {
-      if (!selection.isCollapsed()) {
+      if (!selection.isCollapsed() && selection.withinEditor()) {
         me.elem.style.display = 'block';
 
         // Do it in a timeout so it can calculate accurately.
@@ -66,7 +66,11 @@ function Toolbar(editor) {
   // Reposition toolbar when window is resized.
   var debouncedReposition = util.debounce( function(event) {
     var selection = me.editor.selection();
-    me.reposition(selection);
+    if (!selection.isCollapsed() && selection.withinEditor()) {
+      me.reposition(selection);
+    } else {
+      me.elem.style.display = 'none';
+    }
   }, 5, true);
   window.addEventListener('resize', debouncedReposition);
   document.addEventListener('scroll', debouncedReposition);
