@@ -18,7 +18,11 @@ function Placeholder(elem, tracker) {
 
   me.holder = document.createElement("div");
   me.holder.className = "qed-placeholder";
-  me.holder.innerHTML = "<" + tag + ">" + text + "</" + tag + ">";
+
+  // Build the placholder content
+  var placeholderElement = document.createElement(tag);
+  placholderElement.appendChild(document.createTextnode(text));
+  me.holder.appendChild(placeholderElement);
 
   me.holder.style.position = "absolute";
   me.holder.style['z-index'] = 0;
