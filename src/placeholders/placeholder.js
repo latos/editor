@@ -4,7 +4,13 @@ var util = require('./../util');
 /**
  * Placeholder
  *
- * Representation of the placeholder to be placed over blank block elems
+ * Representation of the placeholder to be placed over a blank block element. The placeholder
+ * should be created, then repositioned regularly.
+ *
+ * See placeholder-tracker.js for more details about placeholder lifecycle.
+ *
+ * Takes the element that the placeholder will be placed over and a reference to the placeholder
+ * tracker
  *
  */
 
