@@ -25,7 +25,7 @@ function Placeholder(elem, tracker) {
   me.holder.appendChild(placeholderElement);
 
   me.holder.style.position = "absolute";
-  me.holder.style['z-index'] = 0;
+  me.holder.style.zIndex = 0;
 
   me.container.appendChild(me.holder);
 
