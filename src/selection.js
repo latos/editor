@@ -13,10 +13,12 @@ module.exports = Selection;
  * methods in terms of Point objects, and providing
  * facilities to manipulate, save, restore the
  * selection, across DOM modifications.
+ *
+ * currentElem is a function that returns the element to which the editor is currently attached
  */
-function Selection(nativeSelection, editor) {
+function Selection(nativeSelection, currentElem) {
   var me = this;
-  me.editor = editor;
+  me.currentElem = currentElem;
 
   var native = me.native = assert(nativeSelection);
 
@@ -63,8 +65,8 @@ function Selection(nativeSelection, editor) {
       var within = false;
 
       try {
-        within = util.compareNodes(me.editor.currentElem(), native.anchorNode) === "parent" &&
-        util.compareNodes(me.editor.currentElem(), native.focusNode) === "parent"
+        within = util.compareNodes(me.currentElem(), native.anchorNode) === "parent" &&
+        util.compareNodes(me.currentElem(), native.focusNode) === "parent"
       } catch (e) {
         within = false;
       }
