@@ -21,7 +21,7 @@ module.exports = function Editor() {
 
   var bus = new EventBus();
 
-  var selection = new Selection(window.getSelection(), getCurrentElem);
+  var selection = new Selection(getCurrentElem);
 
   var registry = new Registry(bus);
 
