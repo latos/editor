@@ -16,11 +16,11 @@ module.exports = Selection;
  *
  * currentElem is a function that returns the element to which the editor is currently attached
  */
-function Selection(nativeSelection, currentElem) {
+function Selection(currentElem, nativeSelection) {
   var me = this;
   me.currentElem = currentElem;
 
-  var native = me.native = assert(nativeSelection);
+  var native = me.native = nativeSelection || new NativeSelection();
 
   me.setCaret = function(point) {
     var pair = Point.check(point).toNodeOffset();
@@ -35,17 +35,7 @@ function Selection(nativeSelection, currentElem) {
     me.setBaseAndExtent(anchorPair[0], anchorPair[1], focusPair[0], focusPair[1]);
   };
 
-  me.setBaseAndExtent = function(anchorParent, anchorOffset, focusParent, focusOffset) {
-    if (native.setBaseAndExtent) {
-      native.setBaseAndExtent(anchorParent, anchorOffset, focusParent, focusOffset);
-    } else {
-      // Using Firefox caret setting methods as backup
-      var fRange = native.getRangeAt(0);
-      fRange.setStart(anchorParent, anchorOffset);
-      fRange.setEnd(focusParent, focusOffset);
-
-    }
-  };
+  me.setBaseAndExtent = native.setBaseAndExtent;
 
   /** Convenience function - returns true if the selection is collapsed or there is no range*/
   me.isCollapsed = function() {
@@ -59,14 +49,14 @@ function Selection(nativeSelection, currentElem) {
 
   /** Helper function - returns true if the selection is within the editor elem */
   me.withinEditor = function() {
-    if (!native.anchorNode || !native.focusNode) {
+    if (!native.anchorNode() || !native.focusNode()) {
       return false;
     } else {
       var within = false;
 
       try {
-        within = util.compareNodes(me.currentElem(), native.anchorNode) === "parent" &&
-        util.compareNodes(me.currentElem(), native.focusNode) === "parent"
+        within = util.compareNodes(me.currentElem(), native.anchorNode()) === "parent" &&
+        util.compareNodes(me.currentElem(), native.focusNode()) === "parent"
       } catch (e) {
         within = false;
       }
@@ -84,8 +74,8 @@ function Selection(nativeSelection, currentElem) {
       return null;
     }
     return new Range(
-        Point.fromNodeOffset(native.anchorNode, native.anchorOffset),
-        Point.fromNodeOffset(native.focusNode,  native.focusOffset));
+        Point.fromNodeOffset(native.anchorNode(), native.anchorOffset()),
+        Point.fromNodeOffset(native.focusNode(),  native.focusOffset()));
   };
 
   var markers = [
@@ -133,21 +123,44 @@ function Selection(nativeSelection, currentElem) {
   me.getCoords = getSelectionCoords;
 };
 
-// TODO: implement wrapper to abstract browser variants.
-//function NativeSelection(browserSel) {
-//  var sel = window.selection || browserSel;
-//
-//  if (sel.setBaseAndExtent) {
-//    me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
-//      sel.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset);
-//    };
-//  } else {
-//    me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
-//      assert(false, 'not implemented');
-//    };
-//  }
-//
-//};
+/** Thin abstraction over browser selection, aims to provide uniform interface for selection across
+all browsers */
+function NativeSelection(browserSel) {
+  var me = this;
+
+  me.sel = browserSel || window.getSelection();
+
+
+  if (me.sel.setBaseAndExtent) {
+    me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
+      me.sel.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset);
+    };
+  } else if (me.sel.getRangeAt) {
+    // Using Firefox caret setting methods as backup
+    me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
+      var fRange = native.getRangeAt(0);
+      fRange.setStart(anchorParent, anchorOffset);
+      fRange.setEnd(focusParent, focusOffset);
+    };
+  } else {
+    me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
+      assert(false, 'not implemented');
+    };
+  }
+
+  me.focusNode = function() {
+    return me.sel.focusNode;
+  };
+  me.anchorNode = function() {
+    return me.sel.anchorNode;
+  };
+  me.focusOffset = function() {
+    return me.sel.focusOffset;
+  };
+  me.anchorOffset = function() {
+    return me.sel.anchorOffset;
+  };
+};
 
 
 // copy pasted from
