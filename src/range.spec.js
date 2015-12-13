@@ -1,5 +1,4 @@
 var Point = require('./point');
-var Range = require('./range');
 var tutil = require('./test-util');
 
 var dom = tutil.dom;
