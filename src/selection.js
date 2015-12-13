@@ -169,7 +169,7 @@ function NativeSelection(browserSel) {
 // TODO: refactor as needed.
 function getSelectionCoords() {
   var sel = document.selection, range, rects, rect;
-  var x = 0, y = 0, width = 0;
+  var x = null, y = null, width = null;
   if (sel) {
     if (sel.type != "Control") {
       range = sel.createRange();
@@ -200,7 +200,7 @@ function getSelectionCoords() {
         }
       }
       // Fall back to inserting a temporary element
-      if (x == 0 && y == 0) {
+      if (x === null || y === null) {
         var span = document.createElement("span");
         if (span.getClientRects) {
           // Ensure span has dimensions and position by
@@ -222,5 +222,11 @@ function getSelectionCoords() {
       }
     }
   }
+
+  // Handle the case that we were unable to set one or more of the values
+  if (x === null || y === null || width === null) {
+    throw new Error("Unable to determine selection coordinates");
+  }
+
   return { x: x, y: y, width: width };
 }
