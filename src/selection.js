@@ -121,6 +121,8 @@ function Selection(currentElem, nativeSelection) {
     util.removeNode(markers[1]);
   };
 
+  /** The returned width/height may be inaccurate on browsers that don't support getClientRects
+  natively on ranges */
   me.getCoords = getSelectionCoords;
 };
 
@@ -169,7 +171,7 @@ function NativeSelection(browserSel) {
 // TODO: refactor as needed.
 function getSelectionCoords() {
   var sel = document.selection, range, rects, rect;
-  var x = null, y = null, width = null;
+  var x = null, y = null, width = null, height = null;
   if (sel) {
     if (sel.type != "Control") {
       range = sel.createRange();
@@ -177,6 +179,7 @@ function getSelectionCoords() {
       x = range.boundingLeft;
       y = range.boundingTop;
       width = range.boundingWidth;
+      height = range.boundingHeight;
     }
   } else if (window.getSelection) {
     sel = window.getSelection();
@@ -186,6 +189,7 @@ function getSelectionCoords() {
       if (range.getBoundingClientRect) {
         rect = range.getBoundingClientRect();
         width = rect.right - rect.left;
+        height = rect.bottom - rect.top;
       }
       // Collapse and get coords
       if (range.getClientRects) {
@@ -208,10 +212,13 @@ function getSelectionCoords() {
           span.appendChild( document.createTextNode("\u200b") );
           range.insertNode(span);
           rect = span.getClientRects()[0];
+          // TODO: The width/height isn't accurate when dealing with word wrapping. Need to take
+          // that into account.
           if (rect) {
             x = rect.left;
             y = rect.top;
             width = rect.right - rect.left;
+            height = rect.bottom - rect.top;
           }
           var spanParent = span.parentNode;
           spanParent.removeChild(span);
@@ -224,9 +231,9 @@ function getSelectionCoords() {
   }
 
   // Handle the case that we were unable to set one or more of the values
-  if (x === null || y === null || width === null) {
+  if (x === null || y === null || width === null || height === null) {
     throw new Error("Unable to determine selection coordinates");
   }
 
-  return { x: x, y: y, width: width };
+  return { x: x, y: y, width: width, height: height };
 }
