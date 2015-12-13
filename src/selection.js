@@ -47,7 +47,8 @@ function Selection(currentElem, nativeSelection) {
     }
   };
 
-  /** Helper function - returns true if the selection is within the editor elem */
+  /** Helper function - returns true if the selection is completely within the editor elem or false
+  otherwise */
   me.withinEditor = function() {
     if (!native.anchorNode() || !native.focusNode()) {
       return false;
