@@ -371,7 +371,7 @@ EventRouter.bubbleLeft = function bubbleLeft(point) {
   }
 
   // directional bubbling doesn't traverse into nodes, only outwards.
-  return Point.before(node);
+  return null;
 }
 
 
@@ -395,7 +395,7 @@ EventRouter.bubbleRight = function bubbleRight(point) {
   }
 
   // directional bubbling doesn't traverse into nodes, only outwards.
-  return Point.after(node);
+  return null;
 }
 
 

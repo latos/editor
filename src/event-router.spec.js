@@ -13,12 +13,6 @@ describe('EventRouter', function() {
       var t1 = b.firstChild;
       var t2 = b.firstChild.splitText(2);
 
-      function expectPoint(point, type, node, offset) {
-        expect(point.type).toBe(type);
-        expect(point.node).toBe(node);
-        expect(point.offset).toBe(offset);
-      }
-
       var point, next;
 
       point = Point.start(i);
@@ -41,11 +35,6 @@ describe('EventRouter', function() {
       expectPoint(point, 'start', b, null);
       expectEquivalent(next, Point.before(b));
 
-      point = next
-      next = ER.bubbleLeft(point);
-      expectPoint(point, 'after', i, null);
-      expect(next).toBe(null);
-
       point = Point.before(b);
       next = ER.bubbleLeft(point);
       expectPoint(point, 'after', i, null);
@@ -55,6 +44,11 @@ describe('EventRouter', function() {
       next = ER.bubbleLeft(point);
       expectPoint(point, 'after', i, null);
       expect(next).toBe(null);
+
+      point = Point.before(i);
+      next = ER.bubbleLeft(point);
+      expectPoint(point, 'start', p, null);
+      expectEquivalent(next, Point.before(p));
     })
   }));
 
@@ -67,12 +61,6 @@ describe('EventRouter', function() {
       var s = p.lastChild;
       var t1 = b.firstChild;
       var t2 = b.firstChild.splitText(2);
-
-      function expectPoint(point, type, node, offset) {
-        expect(point.type).toBe(type);
-        expect(point.node).toBe(node);
-        expect(point.offset).toBe(offset);
-      }
 
       var point, next;
 
@@ -114,6 +102,12 @@ describe('EventRouter', function() {
     })
   }));
 });
+
+function expectPoint(point, type, node, offset) {
+  expect(point.type).toBe(type);
+  expect(point.node).toBe(node);
+  expect(point.offset).toBe(offset);
+}
 
 function expectBefore(point1, point2) {
   expect(point1.compare(point2)).toBeLessThan(0);
