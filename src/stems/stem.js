@@ -56,6 +56,7 @@ Stem.prototype.reposition = function() {
 }
 
 /** Adds a Stem Button to DOM */
+// TODO: Parameterise button styling
 Stem.prototype.createDom = function() {
   var button = document.createElement("div");
   button.className = "stem-creator-button";
@@ -65,6 +66,7 @@ Stem.prototype.createDom = function() {
 }
 
 /** Adds Basic styles */
+// TODO: Parameterise button styling
 Stem.prototype.addStyles = function() {
   this.stemButton.style.background = "#fff";
   this.stemButton.style.border = "1px solid #ccc";
