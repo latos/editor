@@ -9,8 +9,9 @@ var Stem = require("./stem");
  * The tracking utility manages the absolute positioning of these stems,
  * as well as their addition and removal from the DOM.
  *
- * Exclusions can be added so that certain nodes don't have stems created for
- * them. The strings in the exclusions array should be lowercase.
+ * Adding exclusions, an array of strings representing HTML element tag names,
+ * can be added so that certain nodes don't have stems created for them. The
+ * strings in the exclusions array should be lowercase.
  */
 
 function StemTracker(editor, exclusions, onClick) {
