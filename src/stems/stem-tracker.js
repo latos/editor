@@ -83,7 +83,7 @@ StemTracker.prototype.createDom = function() {
 /** Positions the Stem Tracker's container div in the DOM */
 StemTracker.prototype.reposition = function() {
   this.containerElem.style.position = 'relative';
-  this.containerElem.style.left = '-30px';
+  this.containerElem.style.left = '-40px';
   this.containerElem.style.top = '0px';
 }
 
