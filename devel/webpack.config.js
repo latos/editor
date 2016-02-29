@@ -1,6 +1,9 @@
 module.exports = {
-  entry: './demo.js',
+  entry: {
+    demo: './demo.js',
+    keycodes: './keycodes.js'
+  },
   output: {
-    filename: 'demo.js'
+    filename: '[name].js'
   }
 };
