@@ -25,9 +25,9 @@ function Placeholder(elem, tracker) {
   me.holder = document.createElement("div");
   me.holder.className = "qed-placeholder";
 
-  // Build the placholder content
+  // Build the placeholder content
   var placeholderElement = document.createElement(tag);
-  placholderElement.appendChild(document.createTextnode(text));
+  placeholderElement.appendChild(document.createTextnode(text));
   me.holder.appendChild(placeholderElement);
 
   me.holder.style.position = "absolute";
