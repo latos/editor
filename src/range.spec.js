@@ -1,5 +1,4 @@
 var Point = require('./point');
-var Range = require('./point');
 var tutil = require('./test-util');
 
 var dom = tutil.dom;
@@ -38,7 +37,7 @@ describe('Range Iterator', function() {
       expect(range.iterateRight().isAtEnd()).toBe(true);
     });
   }));
-  
+
   it('should not be at end when not collapsed', promised(function() {
     return tutil.rangeCases([
       '[a]',
@@ -49,7 +48,7 @@ describe('Range Iterator', function() {
       expect(range.iterateRight().isAtEnd()).toBe(false);
     });
   }));
-  
+
   it('should skip text to the end', promised(function() {
     return tutil.rangeCases([
       '[ab]',

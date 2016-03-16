@@ -15,16 +15,12 @@ function Toolbar(editor) {
 
   editor.addListener({
     onSelection: function(selection) {
-      if (!selection.isCollapsed()) {
+      if (!selection.isCollapsed() && selection.withinEditor()) {
         me.elem.style.display = 'block';
 
         // Do it in a timeout so it can calculate accurately.
         setTimeout(function() {
-          var coords = selection.getCoords();
-          console.log(coords);
-
-          me.elem.style.top = (coords.y + 40) + 'px';
-          me.elem.style.left = (coords.x - me.elem.offsetWidth/2) + 'px';
+          me.reposition(selection);
 
           for (idx in me.actions) {
             var action = me.actions[idx];
@@ -45,29 +41,51 @@ function Toolbar(editor) {
     }
   });
 
+
+
   // TODO: use dom DSL lib instead of all this boilerplate.
   me.elem = document.createElement('div');
   me.elem.className = 'qed-toolbar';
 
   me.elem.style.position = 'fixed';
-  // Default width without any buttons
-  me.width = 2;
   me.elem.style.width = me.width + 'px';
-  me.elem.style.height = '40px';
-  me.elem.style.zIndex = '10';
+  me.elem.style.zIndex = '1000';
   me.elem.style.border = '1px solid silver';
   me.elem.style.background = 'white';
   me.elem.style.boxShadow = '0px 3px 15px rgba(0,0,0,0.2)';
+  me.elem.style.display = 'none';
 
   ul = document.createElement('ul');
   ul.className = 'qed-toolbar-actions';
 
   me.elem.appendChild(ul);
+  me.buttonContainer = ul;
 
   me.actions = [];
 
+  // Reposition toolbar when window is resized.
+  var debouncedReposition = util.debounce( function(event) {
+    var selection = me.editor.selection();
+    if (!selection.isCollapsed() && selection.withinEditor()) {
+      me.reposition(selection);
+    } else {
+      me.elem.style.display = 'none';
+    }
+  }, 5, true);
+  window.addEventListener('resize', debouncedReposition);
+  document.addEventListener('scroll', debouncedReposition);
+
   document.body.appendChild(me.elem);
 };
+
+/* Reposition the toolbar relative to the selection */
+Toolbar.prototype.reposition = function(selection) {
+  var me = this;
+  var coords = selection.getCoords();
+  me.elem.style.top = (coords.y - 60) + 'px';
+  me.elem.style.left = ( (coords.x + (coords.width / 2)) - me.elem.offsetWidth/2 ) + 'px';
+};
+
 
 /*
  * Add a button to the toolbar
@@ -83,8 +101,7 @@ Toolbar.prototype.addButton = function(label, check, callback) {
   // Create toolbar button
   var li = document.createElement("li");
   var newButton = document.createElement("button");
-  var buttonLabel = document.createTextNode(label);
-  newButton.appendChild(buttonLabel);
+  newButton.innerHTML = label;
   li.appendChild(newButton);
 
   // Style it
@@ -127,6 +144,58 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
     label = 'L';
   }
 
+  // We add a listener to refresh the toolbar on selection if
+  // the link text box is still active
+  me.editor.addListener({
+    onSelection: function(selection) {
+      if (me.urlTextbox) {
+        me.buttonContainer.style.display = '';
+        me.urlTextbox.style.display = 'none';
+      }
+      return false;
+    }
+  });
+
+  // Define the url input box
+  var urlTextbox = document.createElement("input");
+  me.elem.insertBefore(urlTextbox, me.elem.firstChild);
+  urlTextbox.className = 'qed-toolbar-link';
+  urlTextbox.style.display = 'none';
+  me.urlTextbox = urlTextbox;
+  me.urlTextbox.onkeyup = function(e) {
+
+    if (e.keyCode === 13) {
+
+      range = me.urlTextbox.range;
+
+      // Set browsers selection back on what it was before
+      me.editor.selection().setEndpoints(range.anchor, range.focus);
+
+      // We check for "://" to test for a specified protocol, if none is
+      // specified then we'll default to http://. This is to avoid the default
+      // behaviour of createLink to append the value to the current location
+      if (urlTextbox.value.indexOf("://") < 0 && urlTextbox.value.indexOf("mailto:") !== 0) {
+        urlTextbox.value = "http://" + urlTextbox.value;
+      }
+
+      // Add link to selection
+      document.execCommand('createLink', false, urlTextbox.value);
+
+      // Clear the url value
+      urlTextbox.value = '';
+
+      // Remove textbox
+      me.urlTextbox.style.display = 'none';
+
+      // Show buttons
+      me.buttonContainer.style.display = 'block';
+
+      return true;
+    }
+
+    return;
+  };
+
   var linkCheck = function(editor) {
     var iDec = new InlineDecorator();
 
@@ -138,35 +207,18 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
   var linkCallback = function(editor, toggle) {
 
     // Hide buttons
-    me.elem.firstChild.style.display = 'none';
-
-    // Save selection
-    var range = editor.selection().getRange();
+    me.buttonContainer.style.display = 'none';
 
     // Show textbox
-    var urlTextbox = document.createElement("input");
-    me.elem.appendChild(urlTextbox);
-    urlTextbox.focus();
-    urlTextbox.onkeyup = function(e) {
+    me.urlTextbox.style.display = 'inline';
 
-      if (e.keyCode === 13) {
-        // Set browsers selection back on what it was before
-        editor.selection().setEndpoints(range.anchor, range.focus);
+    // Save selection
+    var range = me.editor.selection().getRange();
+    me.urlTextbox.range = range;
 
-        // Add link to selection
-        document.execCommand('createLink', true, urlTextbox.value);
 
-        // Remove textbox
-        me.elem.removeChild(urlTextbox);
+    me.urlTextbox.focus();
 
-        // Show buttons
-        me.elem.firstChild.style.display = 'block';
-
-        return true;
-      }
-
-      return;
-    };
 
     return;
   };
@@ -174,3 +226,8 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
   this.addButton(label, linkCheck, linkCallback);
 };
 
+Toolbar.prototype.remove = function() {
+  var me = this;
+
+  me.elem.parentElement.removeChild(me.elem);
+};

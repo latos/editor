@@ -8,66 +8,86 @@ var Stem = require("./stem");
  * A stem is a widget insertion button. It signifies a potential widget.
  * The tracking utility manages the absolute positioning of these stems,
  * as well as their addition and removal from the DOM.
+ *
+ * Adding exclusions, an array of strings representing HTML element tag names,
+ * can be added so that certain nodes don't have stems created for them. The
+ * strings in the exclusions array should be lowercase.
  */
 
-function StemTracker(editor, onClick) {
+function StemTracker(editor, exclusions, onClick) {
   var me = this;
-  var stems = [];
+  var stem;
+
+  if (typeof exclusions === 'function') {
+    onClick = exclusions;
+    exclusions = [];
+  }
 
   this.editorElem = editor.currentElem();
   this.containerElem = this.createDom();
   this.reposition();
+  this.exclusions = exclusions;
 
   /** Listen for changes in content and update. */
   editor.addListener({
-    onContent: function () {
-      updateStems( this.editorElem );
+    onKeyup: function (e) {
+      updateStems();
       return false;
     },
+    onMouseup: function (e) {
+      updateStems();
+      return false
+    }
   });
 
 
-  function updateStems(editorElem){
-    var previousStems = stems;
-    stems = [];
-
-    /** Loops through all top level elements */
-    var topLevelElems = getTopLevelElems();
-    for (var i=0; i < topLevelElems.length; i++){
-      var elem = topLevelElems[i];
-      var stem = Stem.getOrCreate( elem, onClick, me.containerElem );
-      stems.push(stem);
-    }
-
-    /** Removes orphaned stems */
-    for (var i=0; i < previousStems.length; i++){
-      var previousStem = previousStems[i];
-      if (stems.indexOf(previousStem) < 0){
-        previousStem.remove();
+  function getTopLevelBlockElem(currentNode){
+    for (var node = currentNode; node != null; node = node.parentNode){
+      if (util.isElement(node) && util.isBlock(node)) {
+        return node;
       }
     }
+    return false;
   }
 
-  function getTopLevelElems(){
-    var topLevelElems = [];
-    for (var node = me.editorElem.firstChild; node != null; node = node.nextSibling){
-      if (needsStem(node)) {
-        topLevelElems.push( node )
-      }
+  function updateStems(){
+    var range = editor.selection().getRange();
+    // We may get the mouse up event when we have no selection, so check that
+    // the selection has a range
+    if (!range) {
+      return;
     }
-    return topLevelElems;
+    var point = range.focus;
+    var previousStem = stem;
+    if (stem){
+      stem.remove();
+    }
+
+    // Get top-level element containing current selection / cursor, if any
+    var elem = getTopLevelBlockElem( point.node )
+    if (!needsStem(elem)){
+      if (stem) {
+        stem.remove();
+      }
+    } else {
+      stem = Stem.getOrCreate( elem, onClick, me.containerElem );
+    }
   }
 
   function needsStem (elem) {
     if (!canHaveStem(elem)){
       return false;
     } else {
-      return elem.textContent === '' && typeof elem.$stem === 'undefined';
+      return elem.textContent.trim() === ''; // && typeof elem.$stem === 'undefined';
     }
   }
 
   function canHaveStem(elem) {
-    return util.isElement(elem) && util.isBlock(elem) && util.isEditable(elem);
+    if (util.isElement(elem) && util.isBlock(elem) && util.isEditable(elem)) {
+      return me.exclusions.indexOf(elem.tagName.toLowerCase()) < 0;
+    } else {
+      return false;
+    }
   }
 
 }

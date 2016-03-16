@@ -20,8 +20,8 @@ function Stem(blockElem, onClick, containerElem) {
   this.containerElem = containerElem;
 
   this.stemButton = this.createDom();
-  this.reposition();
   this.addStyles();
+  this.reposition();
 
   // Handle click event
   var me = this;
@@ -45,15 +45,18 @@ Stem.prototype.remove = function() {
 
 /** Reposition the button. */
 Stem.prototype.reposition = function() {
-  var coords = this.blockElem.getBoundingClientRect();
-  var boundingCoords = this.blockElem.parentNode.getBoundingClientRect();
-  var centering = (coords.height / 2) - (buttonDiameter / 2);
-  //var centering = 0;
-  this.stemButton.style.top = (coords.top - boundingCoords.top + centering) + 'px';
-  //this.stemButton.style.top = (coords.top - (this.stemButton.offsetHeight * 4)) + 'px';
+  var elemCoords      = this.blockElem.getBoundingClientRect();
+  var containerCoords = this.containerElem.getBoundingClientRect();
+
+  /* We need to shift the button to center it on the line */
+  var buttonCoords = this.stemButton.getBoundingClientRect();
+  var centering    = (elemCoords.height / 2) - (buttonCoords.height / 2);
+
+  this.stemButton.style.top = (elemCoords.top - containerCoords.top + centering) + 'px';
 }
 
 /** Adds a Stem Button to DOM */
+// TODO: Parameterise button styling
 Stem.prototype.createDom = function() {
   var button = document.createElement("div");
   button.className = "stem-creator-button";
@@ -63,6 +66,7 @@ Stem.prototype.createDom = function() {
 }
 
 /** Adds Basic styles */
+// TODO: Parameterise button styling
 Stem.prototype.addStyles = function() {
   this.stemButton.style.background = "#fff";
   this.stemButton.style.border = "1px solid #ccc";

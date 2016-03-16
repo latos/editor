@@ -208,12 +208,12 @@ exports.rateLimited = function(intervalMillis, func) {
  * paragraph has zero height, unless held 'open' by some text or an element)
  */
 exports.isOpen = function(elem) {
-  if (elem.textContent.length > 0) {
+  if (elem.textContent.trim().length > 0) {
     return true;
   }
   // Check last child node for <br> tag, which opens the element but doesn't
   // show in textContent check
-  if (elem.lastChild && elem.lastChild.tagName === "BR") {
+  if (elem.lastElementChild && elem.lastElementChild.tagName === "BR") {
     return true;
   }
 
@@ -283,4 +283,21 @@ exports.map = function(arr, func) {
     result.push(func(arr[i]));
   }
   return result;
+};
+
+
+// From: http://davidwalsh.name/javascript-debounce-function
+exports.debounce = function (func, wait, immediate) {
+  var timeout;
+  return function() {
+    var context = this, args = arguments;
+    var later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    var callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
 };

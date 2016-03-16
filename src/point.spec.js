@@ -256,11 +256,11 @@ describe('Point', function() {
       expect( empty.innerHTML ).toBe("things");
       expect( empty.nodeType ).toBe(1);
       expect( empty.tagName ).toBe('P');
-      expect( point.type ).toBe('start')
+      expect( point.type ).toBe('start');
     });
   }));
 
-  it('should join from an empty node (right bias)', promised(function(){
+  it('should join from an empty node with point after (right bias)', promised(function(){
     return dom('<div><p></p><h1>things</h1></div>', function(elem) {
       var empty = elem.firstChild;
       var things = empty.nextSibling;
@@ -270,7 +270,35 @@ describe('Point', function() {
       expect( things.innerHTML ).toBe("things");
       expect( things.nodeType ).toBe(1);
       expect( things.tagName ).toBe('H1');
-      expect( point.type ).toBe('before')
+      expect( point.type ).toBe('before');
+    });
+  }));
+
+  it('should put resulting point of join within a text node after normalisation (right bias)', promised(function(){
+    return dom('<div><p>stuff</p><p>things</p></div>', function(elem) {
+      var stuff = elem.firstChild;
+      var things = stuff.nextSibling;
+
+      var point = Point.after(stuff);
+      point.joinRight();
+      expect( things.innerHTML ).toBe("stuffthings");
+      expect( things.nodeType ).toBe(1);
+      expect( point.type ).toBe('text');
+      expect( point.offset ).toBe(5);
+    });
+  }));
+
+  it('should put resulting point of join within a text node after normalisation (left bias)', promised(function() {
+    return dom('<div><p>stuff</p><p>things</p></div>', function(elem) {
+      var stuff = elem.firstChild;
+      var things = stuff.nextSibling;
+
+      var point = Point.before(things);
+      point.joinLeft();
+      expect( stuff.innerHTML ).toBe("stuffthings");
+      expect( stuff.nodeType ).toBe(1);
+      expect( point.type ).toBe('text');
+      expect( point.offset ).toBe(5);
     });
   }));
 
@@ -284,7 +312,7 @@ describe('Point', function() {
       expect( stuff.innerHTML ).toBe("stuff");
       expect( stuff.nodeType ).toBe(1);
       expect( stuff.tagName ).toBe('P');
-      expect( point.type ).toBe('after')
+      expect( point.type ).toBe('after');
     });
   }));
 
@@ -298,7 +326,7 @@ describe('Point', function() {
       expect( empty.innerHTML ).toBe("stuff");
       expect( empty.nodeType ).toBe(1);
       expect( empty.tagName ).toBe('H1');
-      expect( point.type ).toBe('end')
+      expect( point.type ).toBe('end');
     });
   }));
 

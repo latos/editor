@@ -80,7 +80,7 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
         var fleet = registry.busFleetFor(currPoint.node);
 
         for (var bus in fleet) {
-          var handled = handleEvent(fleet[bus], 'key', decorateKeyEvent(e, info.type, currPoint));
+          var handled = handleEvent(fleet[bus], 'key', decorateKeyEvent(e, info.type, point));
 
           if (handled) {
             return handled;
@@ -212,7 +212,10 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     compositionend: wrap(),
     DOMSubtreeModified: wrap(function(e) {
       scheduleContentChangeNotifier();
-    })
+    }),
+    paste: wrap(),
+    copy: wrap(),
+    cut: wrap()
   };
 
   // Logical directions (within the dom)
