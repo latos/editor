@@ -27,7 +27,7 @@ function Placeholder(elem, tracker) {
 
   // Build the placeholder content
   var placeholderElement = document.createElement(tag);
-  placeholderElement.appendChild(document.createTextnode(text));
+  placeholderElement.appendChild(document.createTextNode(text));
   me.holder.appendChild(placeholderElement);
 
   me.holder.style.position = "absolute";
