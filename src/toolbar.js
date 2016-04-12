@@ -174,8 +174,9 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
       // We check for "://" to test for a specified protocol, if none is
       // specified then we'll default to http://. This is to avoid the default
       // behaviour of createLink to append the value to the current location
-      if (urlTextbox.value.indexOf("://") < 0 && urlTextbox.value.indexOf("mailto:") !== 0) {
-        urlTextbox.value = "http://" + urlTextbox.value;
+      // We overwrite this behaviour specifically for any mailto: or tel: links
+      if (urlTextbox.value.indexOf('://') < 0 && urlTextbox.value.indexOf('mailto:') !== 0 && urlTextbox.value.indexOf('tel:') !== 0) {
+        urlTextbox.value = 'http://' + urlTextbox.value;
       }
 
       // Add link to selection
