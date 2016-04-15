@@ -124,7 +124,7 @@ function of(x, y) {
     return end(x);
   }
 
-  assert(checkNode(y).parentNode === x);
+  assert(parentNode(checkNode(y)) === x);
 
   return before(y);
 }
@@ -193,10 +193,10 @@ Point.prototype.toNodeOffset = function() {
     case START: return [this.node, 0];
     case END: return [this.node, this.node.childNodes.length];
     case BEFORE: return [
-        checkHasParent(this.node).parentNode,
+        parentNode(checkHasParent(this.node)),
         childIndex(this.node)];
     case AFTER: return [
-        checkHasParent(this.node).parentNode,
+        parentNode(checkHasParent(this.node)),
         childIndex(this.node) + 1];
     default: assert(false);
   }
@@ -206,7 +206,7 @@ Point.prototype.toNodeOffset = function() {
  * The index of the given node within its parent's children
  */
 function childIndex(child) {
-  var elem = child.parentNode;
+  var elem = parentNode(child);
   var children = elem.childNodes;
   var len = children.length;
   for (var i = 0; i < len; i++) {
@@ -239,9 +239,9 @@ Point.prototype.insert = function(newChild) {
   var p = this.rightNormalized();
 
   if (p.type === TEXT) {
-    p.node.parentNode.insertBefore(newChild, p.node.splitText(p.offset));
+    parentNode(p.node).insertBefore(newChild, p.node.splitText(p.offset));
   } else if (p.type === BEFORE) {
-    p.node.parentNode.insertBefore(newChild, p.node);
+    parentNode(p.node).insertBefore(newChild, p.node);
   } else if (p.type === END) {
     p.node.appendChild(newChild);
   } else {
@@ -277,8 +277,8 @@ function splitRight(splitPoint, splitWith) {
 
   if (splitPoint.type === BEFORE) {
     do {
-      var node = originalElem.lastChild;
-      splitWith.insertBefore(node, splitWith.firstChild);
+      var node = lastChild(originalElem);
+      splitWith.insertBefore(node, firstChild(splitWith));
     } while (node != splitPoint.node);
 
   } else if (splitPoint.type === END) {
@@ -324,7 +324,7 @@ function splitLeft(splitPoint, splitWith) {
 
     // Move child elements of the original element that are left of the split point to the newly created node
     do{
-      var node = originalElem.firstChild;
+      var node = firstChild(originalElem);
       splitWith.appendChild(node);
     } while (node != splitPoint.node);
 
@@ -348,19 +348,19 @@ function joinRight(joinPoint) {
   assert(joinPoint.type === BEFORE || joinPoint.type === AFTER);
   joinPoint = joinPoint.rightNormalized();
 
-  source = joinPoint.node.previousSibling;
+  source = previousSibling(joinPoint.node);
   dest = joinPoint.node;
-  parentNode = dest.parentNode;
+  prntNode = parentNode(dest);
 
   if (!source) {
     return Point.before(joinPoint.node);
   }
 
-  if (source.hasChildNodes()) {
-    if (source.lastChild.nodeType === 3) {
-      resultPoint = Point.text(source.lastChild, source.lastChild.textContent.length)
+  if (hasChildNodes(source)) {
+    if (lastChild(source).nodeType === 3) {
+      resultPoint = Point.text(lastChild(source), lastChild(source).textContent.length)
     } else {
-      resultPoint = Point.after(source.lastChild);
+      resultPoint = Point.after(lastChild(source));
     }
   } else {
     resultPoint = Point.start(dest);
@@ -368,12 +368,12 @@ function joinRight(joinPoint) {
 
   if (joinPoint.type === BEFORE) {
     // Move each node from the sibling node to the left over to this node
-    while (source.hasChildNodes()) {
-      var node = source.lastChild;
-      dest.insertBefore(node, dest.firstChild);
+    while (hasChildNodes(source)) {
+      var node = lastChild(source);
+      dest.insertBefore(node, firstChild(dest));
     }
     // Remove the now empty node
-    parentNode.removeChild(source);
+    prntNode.removeChild(source);
   }
   else if (joinPoint.type === END) {
     // do nothing
@@ -383,8 +383,9 @@ function joinRight(joinPoint) {
 
   // Before normalizing, check if the result point and any (new) previous sibling node are text.
   // If so grab a value for the new offset that is the length of the previous sibling's text
-  if (resultPoint.node.previousSibling && resultPoint.node.nodeType === 3 && resultPoint.node.previousSibling.nodeType === 3) {
-    newOffset = resultPoint.node.previousSibling.length;
+  if (previousSibling(resultPoint.node) && resultPoint.node.nodeType === 3 
+      && previousSibling(resultPoint.node).nodeType === 3) {
+    newOffset = previousSibling(resultPoint.node).length;
   } else {
     newOffset = null;
   }
@@ -410,29 +411,29 @@ function joinLeft(joinPoint) {
   assert(joinPoint.type === BEFORE || joinPoint.type === AFTER);
   joinPoint = joinPoint.leftNormalized();
 
-  source = joinPoint.node.nextSibling;
+  source = nextSibling(joinPoint.node);
   dest = joinPoint.node;
-  parentNode = dest.parentNode;
+  prntNode = parentNode(dest);
 
 
   if (!source) {
     return Point.after(joinPoint.node);
   }
 
-  if (!dest.hasChildNodes()) {
+  if (!hasChildNodes(dest)) {
     resultPoint = Point.start(dest);
-  } else if (dest.lastChild.nodeType === 3) {
-    resultPoint = Point.text(dest.lastChild, dest.lastChild.textContent.length);
+  } else if (lastChild(dest).nodeType === 3) {
+    resultPoint = Point.text(lastChild(dest), lastChild(dest).textContent.length);
   } else {
-    resultPoint = Point.after(dest.lastChild);
+    resultPoint = Point.after(lastChild(dest));
   }
 
   if (joinPoint.type === AFTER) {
-    while(source.hasChildNodes()) {
-      var node = source.firstChild;
+    while(hasChildNodes(source)) {
+      var node = firstChild(source);
       dest.appendChild(node);
     }
-    parentNode.removeChild(source);
+    prntNode.removeChild(source);
   }
   else if (joinPoint.type === START) {
     // do nothing
@@ -455,14 +456,14 @@ Point.prototype.rightNormalized = function() {
   if (p.type == TEXT) {
     return p;
   } else if (p.type == AFTER) {
-    var next = p.node.nextSibling;
+    var next = nextSibling(p.node);
     if (next) {
       return before(next);
     } else {
-      return end(p.node.parentNode);
+      return end(parentNode(p.node));
     }
   } else if (p.type == START) {
-    var child = p.node.firstChild;
+    var child = firstChild(p.node);
     if (child) {
       return before(child);
     } else {
@@ -483,14 +484,14 @@ Point.prototype.leftNormalized = function() {
   if (p.type == TEXT) {
     return p;
   } else if (p.type == BEFORE) {
-    var prev = p.node.previousSibling;
+    var prev = previousSibling(p.node);
     if (prev) {
       return after(prev);
     } else {
-      return start(p.node.parentNode);
+      return start(parentNode(p.node));
     }
   } else if (p.type == END) {
-    var child = p.node.lastChild;
+    var child = lastChild(p.node);
     if (child) {
       return after(child);
     } else {
@@ -512,7 +513,7 @@ Point.prototype.containingElement = function() {
     case TEXT:
     case BEFORE:
     case AFTER:
-      return this.node.parentNode;
+      return parentNode(this.node);
     case START:
     case END:
       return this.node;
@@ -534,7 +535,7 @@ Point.prototype.elemStartingAt = function() {
   } else if (this.type === START) {
     return this.node;
   } else if (this.type === END) {
-    return this.node.firstChild ? null : this.node;
+    return firstChild(this.node) ? null : this.node;
   } else {
     return null;
   }
@@ -552,7 +553,7 @@ Point.prototype.elemEndingAt = function() {
   } else if (this.type === END) {
     return this.node;
   } else if (this.type === START) {
-    return this.node.firstChild ? null : this.node;
+    return firstChild(this.node) ? null : this.node;
   } else {
     return null;
   }
@@ -725,7 +726,7 @@ Point.prototype.setTo = function(point) {
 //}
 
 function checkHasParent(node) {
-  assert(node.parentNode, 'node not attached to a parent', node);
+  assert(parentNode(node), 'node not attached to a parent', node);
   return node;
 }
 
@@ -745,3 +746,73 @@ function checkPoint(obj) {
   assert(obj instanceof Point, 'object not a Point', obj);
   return obj;
 }
+
+
+// We use these dom-traversal helpers instead of the node properties
+// so that we effectively get a filtered 'view' of the dom that
+// contains only elements and text (in particular, skip comment nodes)
+// In any case, these functions are a choke-point for customizing
+// this kind of behaviour.
+// NB: Be careful with usage of other props e.g. childNodes, 
+
+function hasChildNodes(node) {
+  return firstChild(node) != null;
+}
+
+function parentNode(node) {
+  return node.parentNode;
+
+  if (!node.parentNode) {
+    return null;
+  }
+  var candidate = node.parentNode;
+  if (candidate.nodeType === 1 || candidate.nodeType === 3) {
+    return candidate;
+  }
+  return parentNode(candidate);
+}
+
+function firstChild(node) {
+  if (!node.firstChild) {
+    return null;
+  }
+  var candidate = node.firstChild;
+  if (candidate.nodeType === 1 || candidate.nodeType === 3) {
+    return candidate;
+  }
+  return nextSibling(candidate);
+}
+
+function lastChild(node) {
+  if (!node.lastChild) {
+    return null;
+  }
+  var candidate = node.lastChild;
+  if (candidate.nodeType === 1 || candidate.nodeType === 3) {
+    return candidate;
+  }
+  return previousSibling(candidate);
+}
+
+function nextSibling(node) {
+  if (!node.nextSibling) {
+    return null;
+  }
+  var candidate = node.nextSibling;
+  if (candidate.nodeType === 1 || candidate.nodeType === 3) {
+    return candidate;
+  }
+  return nextSibling(candidate);
+}
+
+function previousSibling(node) {
+  if (!node.previousSibling) {
+    return null;
+  }
+  var candidate = node.previousSibling;
+  if (candidate.nodeType === 1 || candidate.nodeType === 3) {
+    return candidate;
+  }
+  return previousSibling(candidate);
+}
+
