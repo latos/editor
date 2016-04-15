@@ -25,7 +25,9 @@ describe('InlineDecorator', function() {
     ['<p>ab[c<i>sup</i></p><p>hello<b>s]up</b></p>', {'font-style':['italic','normal'], 'font-weight':['bold','normal']}],
     ['<p>|</p>', {}],
 
-    ['<p><a href="http://www.google.com">L|ink</a> there.</p>', {'href':['http://www.google.com/']}]
+    ['<p><a href="http://www.google.com">L|ink</a> there.</p>', {'href':['http://www.google.com/']}],
+
+    ['<p>ab[c<i>sup</i></p><p><!-- comment -->hello<b>s]up</b></p>', {'font-style':['italic','normal'], 'font-weight':['bold','normal']}],
 
   ];
 
