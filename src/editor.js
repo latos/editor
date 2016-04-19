@@ -5,7 +5,7 @@ var Selection = require('./selection');
 var Registry = require('./registry');
 
 /**
- * Editor class
+ * Base Editor class
  *
  * An editor may be attached to any DOM element, which will
  * then become editable.  When the editor is detached, the element
@@ -13,15 +13,23 @@ var Registry = require('./registry');
  *
  * The editor emits a rich set of events which can be handled
  * specially by users.
+ *
+ * `options` - Overrides for the default modules. Accepts:
+ *    `nativeSelection`: Override to the native selection used by the
+ *    selection module 
  */
-module.exports = function Editor() {
+module.exports = function Editor(options) {
   var me = this;
+  
+  if (!options) {
+    options = {};
+  }
 
   var currentElem = null;
 
   var bus = new EventBus();
 
-  var selection = new Selection(getCurrentElem);
+  var selection = new Selection(getCurrentElem, options.nativeSelection);
 
   var registry = new Registry(bus);
 
