@@ -141,9 +141,9 @@ function NativeSelection(browserSel) {
   } else if (me.sel.getRangeAt) {
     // Using Firefox caret setting methods as backup
     me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
-      var fRange = native.getRangeAt(0);
-      fRange.setStart(anchorParent, anchorOffset);
-      fRange.setEnd(focusParent, focusOffset);
+      var fRange = me.sel.getRangeAt(0);
+      fRange.setStart(anchorNode, anchorOffset);
+      fRange.setEnd(focusNode, focusOffset);
     };
   } else {
     me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
