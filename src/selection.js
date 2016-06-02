@@ -185,14 +185,15 @@ function getSelectionCoords() {
     sel = window.getSelection();
     if (sel.rangeCount) {
       range = sel.getRangeAt(0).cloneRange();
-      // Get width before collapsing
+      // Get details of selection bounding rectangle if possible
       if (range.getBoundingClientRect) {
         rect = range.getBoundingClientRect();
         width = rect.right - rect.left;
         height = rect.bottom - rect.top;
-      }
-      // Collapse and get coords
-      if (range.getClientRects) {
+        x = rect.left;
+        y = rect.top;
+      // Otherwise collapse and get coords that we can
+      } else if (range.getClientRects) {
         range.collapse(true);
         rects = range.getClientRects();
         if (rects.length > 0) {
@@ -201,6 +202,8 @@ function getSelectionCoords() {
         if (rect) {
           x = rect.left;
           y = rect.top;
+          width = rect.width;
+          height = rect.height;
         }
       }
       // Fall back to inserting a temporary element
