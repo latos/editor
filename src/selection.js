@@ -91,7 +91,7 @@ function Selection(currentElem, nativeSelection) {
   me.saveToMarkers = function() {
     me.clearMarkers();
 
-    var sel = me.getRange().order();
+    var sel = me.getRange();
     sel.focus.insert(markers[1]);
     sel.anchor.insert(markers[0]);
   };
