@@ -43,7 +43,7 @@ function StemTracker(editor, exclusions, onClick) {
 
   function getTopLevelBlockElem(currentNode){
     for (var node = currentNode; node != null; node = node.parentNode){
-      if (util.isElement(node) && util.isBlock(node)) {
+      if (util.isElement(node) && util.isBlock(node) && editor.currentElem() === node.parentElement) {
         return node;
       }
     }
