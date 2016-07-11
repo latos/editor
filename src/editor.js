@@ -16,11 +16,11 @@ var Registry = require('./registry');
  *
  * `options` - Overrides for the default modules. Accepts:
  *    `nativeSelection`: Override to the native selection used by the
- *    selection module 
+ *    selection module
  */
 module.exports = function Editor(options) {
   var me = this;
-  
+
   if (!options) {
     options = {};
   }
@@ -69,7 +69,7 @@ module.exports = function Editor(options) {
       return;
     }
 
-    assert(detacher);
+    util.assert(detacher);
 
     detacher();
 
