@@ -3,6 +3,7 @@ module.exports.codes = {
   BACKSPACE: 8,
   TAB: 9,
   ENTER: 13,
+  CONTEXT_MENU: 16,
   CONTROL: 17,
   ALT: 18,
   ESC: 27,
@@ -43,15 +44,24 @@ module.exports.computeKeyType = function (e) {
   // Enter
   } else if (keycode === me.codes.ENTER) {
     type = me.types.ENTER;
-  // Escape and Context menu key (U+0010) would be both captured as input as their keyIdentifier starts with U+
-  } else if (keycode === me.codes.ESC || (e.keyIdentifier && e.keyIdentifier === 'U+0010')) {
-    type = me.types.NOEFFECT
-  // Input
-  } else if ((e.keyIdentifier && e.keyIdentifier.match('^U\+')) && (e.type && e.type === 'keydown')) {
-    type = me.types.INPUT;
-  // No effect
+  // No effect on some key types, otherwise input
   } else {
-    type = me.types.NOEFFECT;
+    switch (keycode) {
+      case me.codes.CONTEXT_MENU:
+      case me.codes.CONTROL:
+      case me.codes.ALT:
+      case me.codes.ESC:
+      case me.codes.META:
+        type = me.types.NOEFFECT;
+        break;
+      default:
+        if (e.type && e.type === 'keydown') {
+          type = me.types.INPUT;
+        } else {
+          type = me.types.NOEFFECT;
+        }
+        break;
+    };
   }
 
   return type;
