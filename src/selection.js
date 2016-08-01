@@ -92,8 +92,12 @@ function Selection(currentElem, nativeSelection) {
     me.clearMarkers();
 
     var sel = me.getRange();
-    sel.focus.insert(markers[1]);
-    sel.anchor.insert(markers[0]);
+    if (!sel) {
+      return;
+    } else {
+      sel.focus.insert(markers[1]);
+      sel.anchor.insert(markers[0]);
+    }
   };
 
   me.loadFromMarkers = function() {
