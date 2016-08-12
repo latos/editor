@@ -264,7 +264,7 @@ function splitRight(splitPoint, splitWith) {
 
   var resultPoint = Point.after(splitPoint.containingElement());
 
-  if (resultPoint.type === END && avoidSplittingIfPossible) {
+  if (splitPoint.type === END && avoidSplittingIfPossible) {
     return resultPoint;
   }
 
@@ -306,8 +306,9 @@ function splitLeft(splitPoint, splitWith) {
 
   var resultPoint = Point.before(splitPoint.containingElement());
 
-  // This will never get called as resultPoint is always of type 'BEFORE' based on previous function call
-  if (resultPoint.type === START && avoidSplittingIfPossible) {
+  // A split will end up with the point being outside the containing element. If we are attempting
+  // to avoid splitting and the point is at the start, we just give the point outside the element
+  if (splitPoint.type === START && avoidSplittingIfPossible) {
     return resultPoint;
   }
 
@@ -383,7 +384,7 @@ function joinRight(joinPoint) {
 
   // Before normalizing, check if the result point and any (new) previous sibling node are text.
   // If so grab a value for the new offset that is the length of the previous sibling's text
-  if (previousSibling(resultPoint.node) && resultPoint.node.nodeType === 3 
+  if (previousSibling(resultPoint.node) && resultPoint.node.nodeType === 3
       && previousSibling(resultPoint.node).nodeType === 3) {
     newOffset = previousSibling(resultPoint.node).length;
   } else {
@@ -753,7 +754,7 @@ function checkPoint(obj) {
 // contains only elements and text (in particular, skip comment nodes)
 // In any case, these functions are a choke-point for customizing
 // this kind of behaviour.
-// NB: Be careful with usage of other props e.g. childNodes, 
+// NB: Be careful with usage of other props e.g. childNodes,
 
 function hasChildNodes(node) {
   return firstChild(node) != null;

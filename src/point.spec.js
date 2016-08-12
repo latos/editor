@@ -111,9 +111,53 @@ describe('Point', function() {
       expect( createdB.tagName ).toBe('B');
       expect( point.node ).toBe( createdB );
       expect( point.type ).toBe('before');
+      expect( point.node.parentElement ).toBe( elem );
 
     });
   }));
+
+  it('should not split at end of element with right bias if avoiding splitting', promised(function() {
+    return dom('<p>stuff</p>', function(elem) {
+      var point = Point.end(elem);
+      point.splitRight(false);
+      expect(point.type).toBe('end');
+      expect(point.node.tagName).toBe('BODY');
+      expect(point.node.children.length).toBe(1);
+    });
+  }));
+
+  it('should split at end of element with right bias if not avoiding splitting', promised(function() {
+    return dom('<p>stuff</p>', function(elem) {
+      var point = Point.end(elem);
+      point.splitRight(true);
+      expect(point.node.previousSibling).not.toBe(null);
+      expect(point.node.previousSibling.tagName).toBe('P');
+      expect(point.node.tagName).toBe('P');
+      expect(point.node.parentElement.children.length).toBe(2);
+    });
+  }));
+
+  it('should not split at start of element with left bias if avoiding splitting', promised(function() {
+    return dom('<p>stuff</p>', function(elem) {
+      var point = Point.start(elem);
+      point.splitLeft(false);
+      expect(point.type).toBe('start');
+      expect(point.node.tagName).toBe('BODY');
+      expect(point.node.children.length).toBe(1);
+    });
+  }));
+
+  it('should split at the start of element with left bias if not avoiding splitting', promised(function() {
+    return dom('<p>stuff</p>', function(elem) {
+      var point = Point.start(elem);
+      point.splitLeft(true);
+      expect(point.type).toBe('after');
+      expect(point.node.tagName).toBe('P');
+      expect(point.node.nextSibling).not.toBe(null);
+      expect(point.node.nextSibling.tagName).toBe('P');
+      expect(point.node.parentElement.children.length).toBe(2);
+    })
+  }))
 
   it('should split at a point (left bias)', promised(function(){
     return dom('<p>stuff<b>Here<i>good</i>things</b>and things here</p>', function(elem) {
@@ -130,6 +174,7 @@ describe('Point', function() {
       expect( createdB.tagName ).toBe('B');
       expect( point.node ).toBe( createdB );
       expect( point.type ).toBe('after');
+      expect( point.node.parentElement ).toBe( elem );
 
     });
   }));
