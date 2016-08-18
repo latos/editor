@@ -1,4 +1,5 @@
 var Point = require('./point');
+var Range = require('./range');
 var tutil = require('./test-util');
 
 var dom = tutil.dom;
@@ -34,6 +35,14 @@ describe('Range Iterator', function() {
       '<p>|b</p>',
       '<p>a|b</p>',
     ], function(elem, range) {
+      expect(range.iterateRight().isAtEnd()).toBe(true);
+    });
+  }));
+
+  it('should terminate immediately when collapsed begin/end', promised(function() {
+    return dom('<p></p>', function(elem) {
+      var range = new Range(Point.start(elem), Point.end(elem));
+      expect(range.iterateRight().leaveElement()).toBe(null);
       expect(range.iterateRight().isAtEnd()).toBe(true);
     });
   }));
@@ -102,6 +111,28 @@ describe('Range Iterator', function() {
     });
   }));
 
+
+  it('should get text', promised(function() {
+    return tutil.rangeCases([
+      'xy[abcd]',
+      '[abcd]xy',
+      'xy[abcd]z',
+      'xy[abcd<b>ef</b>g]z',
+      '<b>xy[</b>abcd<b>ef</b>g]z',
+      '[<b>abcd]</b>',
+    ], function(elem, range) {
+      var it = range.iterateRight();
+      while (!it.point.hasTextAfter()) {
+        if (it.enterElement()) {
+          continue;
+        }
+        if (it.leaveElement()) {
+          continue;
+        }
+      }
+      expect(it.skipText().getText()).toBe('abcd');
+    });
+  }));
 
   // todo: lots more tests.
 
