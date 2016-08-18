@@ -712,6 +712,82 @@ Point.prototype.setTo = function(point) {
   this.offset = point.offset;
 }
 
+Point.prototype.debug = function(levels) {
+  levels = levels || 1;
+  if (this.type === START || this.type === END) {
+    levels--;
+  }
+  var node = this.node;
+  while (node.parentNode && levels--) {
+    node = node.parentNode
+  }
+  return renderDebugElem(node, this);
+}
+
+function renderDebugNode(node, point) {
+  var isThisNode = (point.node === node);
+
+  var bits = [];
+
+  if (isThisNode && point.type === BEFORE) {
+    bits.push('\u2192'); // right arrow
+    //bits.push('[');
+  }
+  if (node.nodeType === 1) {
+    bits.push(renderDebugElem(node, point));
+  } else if (node.nodeType === 3) {
+    bits.push(renderDebugTextNode(node, point));
+  } else {
+    // TODO other stuff
+    bits.push('<!--?-->');
+  }
+  if (isThisNode && point.type === AFTER) {
+    bits.push('\u2190');  // left arrow
+    //bits.push(']');
+  }
+
+  return bits.join('');
+}
+
+function renderDebugElem(elem, point) {
+  var bits = [];
+  var tagName = elem.tagName.toLowerCase()
+
+  var isThisElem = (point.node === elem);
+
+  bits.push('<' + tagName + '>')
+  if (isThisElem && point.type === START) {
+    bits.push('\u2196'); // up-left diagonal arrow
+    //bits.push('{');
+  }
+  for (var node = elem.firstChild; node !== null; node = node.nextSibling) {
+    bits.push(renderDebugNode(node, point));
+  }
+  if (isThisElem && point.type === END) {
+    bits.push('\u2197'); // up-right diagonal arrow
+    //bits.push('}');
+  }
+
+  if (bits.length === 1 && tagName === 'br') {
+    bits[0] = '<br/>';
+  } else {
+    bits.push('</' + tagName + '>')
+  }
+
+  return bits.join('');
+}
+
+function renderDebugTextNode(node, point) {
+  var str;
+  if (point.type === TEXT && point.node === node) {
+    str = node.data.substring(0, point.offset) + '\u21a7' + 
+        node.data.substring(point.offset)
+  } else {
+    str = node.data;
+  }
+  return '`' + str;
+}
+
 //function rightNormalized0(func) {
 //  return function() {
 //    func(this.rightNormalized());
