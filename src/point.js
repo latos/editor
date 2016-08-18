@@ -238,15 +238,23 @@ Point.prototype.ensureInsertable = function() {
 Point.prototype.insert = function(newChild) {
   var p = this.rightNormalized();
 
+  p.ensureInsertable();
+
   if (p.type === TEXT) {
-    parentNode(p.node).insertBefore(newChild, p.node.splitText(p.offset));
-  } else if (p.type === BEFORE) {
+    p = p.moveToAfter(p.node).rightNormalized();
+  }
+
+  assert(p.type !== TEXT);
+
+  if (p.type === BEFORE) {
     parentNode(p.node).insertBefore(newChild, p.node);
   } else if (p.type === END) {
     p.node.appendChild(newChild);
   } else {
     assert(false);
   }
+
+  return newChild;
 };
 
 
