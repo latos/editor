@@ -694,7 +694,7 @@ Point.prototype.nodeNormalized = function(mustLeave) {
     assert(this.offset > 0 && this.offset < this.node.length, this.offset, this.node.data);
   }
 
-  return this;
+  return this.copy();
 };
 
 Point.prototype.copy = function() {
