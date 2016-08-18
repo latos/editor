@@ -194,6 +194,13 @@ var FlatTextRange = function(start, end, length) {
   this.start = start;
   this.end = end;
   this.length = length;
+
+  if (!start.hasTextAfter()) {
+    throw new Error('Invalid text range start ' + this.start.debug(1));
+  }
+  if (!end.hasTextBefore()) {
+    throw new Error('Invalid text range end ' + this.end.debug(1));
+  }
 };
 
 FlatTextRange.prototype.wrap = function(elem) {
@@ -202,4 +209,31 @@ FlatTextRange.prototype.wrap = function(elem) {
 
   assert(false); // todo
 };
+
+FlatTextRange.prototype.getText = function() {
+  assert(this.start.hasTextAfter());
+  assert(this.end.hasTextBefore());
+  var firstNode = this.start.nodeAfter() || this.start.node;
+  var lastNode = this.end.nodeBefore() || this.end.node;
+  assert(firstNode.nodeType === 3);
+  assert(lastNode.nodeType === 3);
+
+  if (firstNode === lastNode) {
+    return firstNode.data.substring(
+        this.start.offset || 0, 
+        this.end.offset || firstNode.data.length);
+  }
+
+  var text = firstNode.data.substring(this.start.offset);
+  for (var node = firstNode.nextSibling; 
+      node != lastNode;
+      node = node.nextSibling) {
+
+    text += node.data
+  }
+
+  text += lastNode.data.substring(0, this.end.offset);
+
+  return text;
+}
 
