@@ -32,6 +32,7 @@ describe('Point', function() {
 
       expectBefore(Point.start(p), Point.text(t, 1));
       expectAfter(Point.text(t, 1), Point.start(p));
+      expectAfter(Point.after(p), Point.end(p));
       expectEquivalent(Point.start(p), Point.before(i));
       expectEquivalent(Point.before(i), Point.start(p));
       expectEquivalent(Point.start(i), Point.before(t));
@@ -46,6 +47,7 @@ describe('Point', function() {
       expectEquivalent(Point.text(t, 3), Point.end(i));
 
       expectEquivalent(Point.after(i), Point.before(b));
+      expectEquivalent(Point.after(b), Point.end(p));
     })
   }));
 
