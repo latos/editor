@@ -95,8 +95,15 @@ function Selection(currentElem, nativeSelection) {
     if (!sel) {
       return;
     } else {
-      sel.focus.insert(markers[1]);
-      sel.anchor.insert(markers[0]);
+      // In case they're in the same text node, do the
+      // dom-order-latter one first, to avoid invalidating the other.
+      if (sel.isOrdered()) {
+        sel.focus.insert(markers[1]);
+        sel.anchor.insert(markers[0]);
+      } else {
+        sel.anchor.insert(markers[0]);
+        sel.focus.insert(markers[1]);
+      }
     }
   };
 
