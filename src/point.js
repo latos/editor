@@ -736,13 +736,14 @@ function renderDebugNode(node, point) {
     bits.push(renderDebugElem(node, point));
   } else if (node.nodeType === 3) {
     bits.push(renderDebugTextNode(node, point));
+  } else if (node.nodeType === 8) {
+    bits.push('<!--' + node.data + '-->');
   } else {
     // TODO other html node types
-    bits.push('<!--?-->');
+    bits.push('{{{- unimplemented node type -}}}');
   }
   if (isThisNode && point.type === AFTER) {
     bits.push('\u2190');  // left arrow
-    //bits.push(']');
   }
 
   return bits.join('');

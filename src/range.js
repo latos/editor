@@ -224,15 +224,24 @@ FlatTextRange.prototype.getText = function() {
         this.end.offset || firstNode.data.length);
   }
 
-  var text = firstNode.data.substring(this.start.offset);
+  // offset undefined for non-text types.
+  var text = firstNode.data.substring(this.start.offset || 0);
   for (var node = firstNode.nextSibling; 
       node != lastNode;
       node = node.nextSibling) {
 
+    // skip comment nodes
+    if (node.nodeType !== 3) {
+      continue;
+    }
+
     text += node.data
   }
 
-  text += lastNode.data.substring(0, this.end.offset);
+  
+  text += this.end.type === Point.types.TEXT 
+      ? lastNode.data.substring(0, this.end.offset)
+      : lastNode.data;
 
   return text;
 }
