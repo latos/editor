@@ -731,14 +731,13 @@ function renderDebugNode(node, point) {
 
   if (isThisNode && point.type === BEFORE) {
     bits.push('\u2192'); // right arrow
-    //bits.push('[');
   }
   if (node.nodeType === 1) {
     bits.push(renderDebugElem(node, point));
   } else if (node.nodeType === 3) {
     bits.push(renderDebugTextNode(node, point));
   } else {
-    // TODO other stuff
+    // TODO other html node types
     bits.push('<!--?-->');
   }
   if (isThisNode && point.type === AFTER) {
@@ -758,14 +757,12 @@ function renderDebugElem(elem, point) {
   bits.push('<' + tagName + '>')
   if (isThisElem && point.type === START) {
     bits.push('\u2196'); // up-left diagonal arrow
-    //bits.push('{');
   }
   for (var node = elem.firstChild; node !== null; node = node.nextSibling) {
     bits.push(renderDebugNode(node, point));
   }
   if (isThisElem && point.type === END) {
     bits.push('\u2197'); // up-right diagonal arrow
-    //bits.push('}');
   }
 
   if (bits.length === 1 && tagName === 'br') {
