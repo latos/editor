@@ -24,6 +24,10 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
     registry.defaultHandler().post('selection', selection);
   });
 
+  var scheduleSelectionDragChangeNotifier = util.rateLimited(100, function(e) {
+    registry.defaultHandler().post('selectiondrag', e);
+  });
+
   function wrap(func) {
     func = func || util.noop;
 
@@ -170,6 +174,17 @@ var EventRouter = module.exports = function EventRouter(getRootElem, registry, s
 
     mouseup: wrap(function(e) {
       scheduleSelectionChangeNotifier();
+    }),
+
+    mousemove: wrap(function(e) {
+      if (e.buttons != null) {
+        if (e.buttons === 1) {
+          scheduleSelectionDragChangeNotifier(e);
+        }
+      } else if (e.which != null && e.which === 1) {
+        scheduleSelectionDragChangeNotifier(e);
+      }
+      return false;
     }),
 
     keydown: wrap(function(e) {
