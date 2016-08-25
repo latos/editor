@@ -179,9 +179,9 @@ exports.rateLimited = function(intervalMillis, func) {
   var scheduled = false;
   var lastScheduled = 0;
 
-  function run() {
+  function run(args) {
     scheduled = false;
-    func();
+    func.apply(null, args);
   }
 
   function schedule() {
@@ -191,13 +191,15 @@ exports.rateLimited = function(intervalMillis, func) {
 
     scheduled = true;
 
+    var args = arguments;
+
     var now = Date.now();
     var earliest = lastScheduled + intervalMillis;
     var delay = earliest > now ? earliest - now : 0;
 
     lastScheduled = now + delay;
 
-    setTimeout(run, delay);
+    setTimeout(run, delay, args);
   };
 
   return schedule;
