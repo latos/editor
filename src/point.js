@@ -624,6 +624,32 @@ Point.prototype.isEquivalentTo = function(point) {
 };
 
 /**
+ * Gives the tag name of the element leftNormalized of the point, or null
+ * if it is not an element.
+ */
+Point.prototype.getTagNameBefore = function() {
+  var node = this.leftNormalized().node;
+  if (node.tagName) {
+    return node.tagName.toLowerCase();
+  } else {
+    return null;
+  }
+};
+
+/**
+ * Gives the tag name of the element rightNormalized of the point, or null
+ * if it is not an element.
+ */
+Point.prototype.getTagNameAfter = function() {
+  var node = this.rightNormalized().node;
+  if (node.tagName) {
+    return node.tagName.toLowerCase();
+  } else {
+    return null;
+  }
+};
+
+/**
  * Returns a negative number if this point is before the
  * other point in depth-first dom-traversal order, positive
  * if it is after, or zero if the two points are equivalent.
