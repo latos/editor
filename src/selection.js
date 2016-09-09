@@ -22,10 +22,16 @@ function Selection(currentElem, nativeSelection) {
 
   var native = me.native = nativeSelection || new NativeSelection();
 
+  // If point is null, remove selection, otherwise set the caret at the provided point
   me.setCaret = function(point) {
-    var pair = Point.check(point).toNodeOffset();
+    if (!point) {
+      native.removeSelection();
+    } else {
+      var pair = Point.check(point).toNodeOffset();
 
-    me.setBaseAndExtent(pair[0], pair[1], pair[0], pair[1]);
+      me.setBaseAndExtent(pair[0], pair[1], pair[0], pair[1]);
+    }
+    return;
   };
 
   me.setEndpoints = function(anchor, focus) {
@@ -158,6 +164,16 @@ function NativeSelection(browserSel) {
     };
   } else {
     me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
+      assert(false, 'not implemented');
+    };
+  }
+
+  if (me.sel.removeAllRanges) {
+    me.removeSelection = function() {
+      me.sel.removeAllRanges();
+    };
+  } else {
+    me.removeSelection = function() {
       assert(false, 'not implemented');
     };
   }
