@@ -115,18 +115,18 @@ exports.compareNodes = function(node1, node2) {
           return 'after';
         }
       }
-      assert(false);
+      assert(false, 'Nodes should be siblings but could not be found under same node');
     }
 
-    assert(n1 === n2);
+    assert(n1 === n2, 'Nodes are out of sync in tree');
     currentParent = n1;
   };
 
-  assert(false);
+  assert(false, 'Could not find a relationship');
 };
 
 var nodePath = exports.nodePath = function(node) {
-  assert(node);
+  assert(node, 'No node given to get path');
 
   var path = [];
   while (node) {
