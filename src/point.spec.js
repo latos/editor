@@ -2,6 +2,7 @@ var Point = require('./point');
 var tutil = require('./test-util');
 
 var dom = tutil.dom;
+var domrange = tutil.domrange;
 var promised = tutil.promised;
 
 describe('Point', function() {
@@ -374,6 +375,66 @@ describe('Point', function() {
       expect( empty.nodeType ).toBe(1);
       expect( empty.tagName ).toBe('H1');
       expect( point.type ).toBe('end');
+    });
+  }));
+
+  it('should detect that it can join between two elements', promised(function(){
+    return domrange('<div><p>some</p>|<p>stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      expect( point.canJoin() ).toBe(true);
+    });
+  }));
+
+  it('should detect that it cant join when on text node', promised(function(){
+    return domrange('<div><p>some|</p><p>stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      point = Point.after(point.node);
+      expect( point.canJoin() ).toBe(false);
+    });
+  }));
+
+  it('should detect that it cant join when before first child', promised(function(){
+    return domrange('<div><p>some</p><p>|<b>stuff</b></p></div>', function(elem, range) {
+      var point = range.anchor;
+      point = Point.before(point.node.firstChild);
+      expect( point.canJoin() ).toBe(false);
+    });
+  }));
+
+  it('should detect that it cant join while in a text node', promised(function(){
+    return domrange('<div><p>some|stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      expect( point.canJoin() ).toBe(false);
+    });
+  }));
+
+  it('should detect that it cant join while next to a text node (text after)', promised(function(){
+    return domrange('<div><p><b>some</b>|stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      expect( point.canJoin() ).toBe(false);
+    });
+  }));
+
+  it('should detect that it cant join while next to a text node (text before)', promised(function(){
+    return domrange('<div><p>some|<b>stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      point = Point.before(point.node.nextSibling);
+      expect( point.canJoin() ).toBe(false);
+    });
+  }));
+
+  it('should detect that it cant join while next to a text node (text after, alternative point)', promised(function(){
+    return domrange('<div><p><b>some|</b>stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      point = Point.end(point.containingElement());
+      expect( point.canJoin() ).toBe(false);
+    });
+  }));
+
+  it('should detect that it cant join while next to a text node (text before, alternative point)', promised(function(){
+    return domrange('<div><p>some<b>|stuff</p></div>', function(elem, range) {
+      var point = range.anchor;
+      expect( point.canJoin() ).toBe(false);
     });
   }));
 
