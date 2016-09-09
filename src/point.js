@@ -409,6 +409,16 @@ function joinRight(joinPoint) {
   return resultPoint;
 };
 
+Point.prototype.canJoin = function() {
+  if (this.type === 'before') {
+    return this.node.nodeType === 1 && previousSibling(this.node) != null && previousSibling(this.node).nodeType === 1;
+  } else if (this.type === 'after') {
+    return this.node.nodeType === 1 && nextSibling(this.node) != null && nextSibling(this.node).nodeType === 1;
+  } else {
+    return false;
+  }
+};
+
 /*
  * Joins at this point, preserving left node. Expects point to be either BEFORE or AFTER a node
  */
