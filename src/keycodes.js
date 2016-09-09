@@ -25,9 +25,13 @@ module.exports.types = {
 }
 
 // Returns true for a navigation key
-isNavigationKeyCode = function (key) {
+var isNavigationKeyCode = function (key) {
   me = module.exports;
   return key >= me.codes.LEFT && key <= me.codes.DOWN;
+}
+
+var metaPressed = function (e) {
+  return e.ctrlKey || e.altKey || e.metaKey;
 }
 
 // Given a keydown event, calculate the type of key that was pressed
@@ -55,7 +59,7 @@ module.exports.computeKeyType = function (e) {
         type = me.types.NOEFFECT;
         break;
       default:
-        if (e.type && e.type === 'keydown') {
+        if (e.type && e.type === 'keydown' && !metaPressed(e)) {
           type = me.types.INPUT;
         } else {
           type = me.types.NOEFFECT;
