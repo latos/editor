@@ -8,6 +8,10 @@ module.exports.codes = {
   ALT: 18,
   ESC: 27,
   SPACE: 32,
+  PAGEUP: 33,
+  PAGEDOWN: 34,
+  END: 35,
+  HOME: 36,
   LEFT : 37,
   UP : 38,
   RIGHT: 39,
@@ -27,7 +31,7 @@ module.exports.types = {
 // Returns true for a navigation key
 var isNavigationKeyCode = function (key) {
   me = module.exports;
-  return key >= me.codes.LEFT && key <= me.codes.DOWN;
+  return key >= me.codes.PAGEUP && key <= me.codes.DOWN;
 }
 
 var metaPressed = function (e) {
