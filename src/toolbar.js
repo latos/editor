@@ -1,4 +1,5 @@
 var util = require('./util');
+var keycodes = require('./keycodes');
 var Editor = require('./event-bus');
 var Selection = require('./selection');
 var InlineDecorator = require('./inline-decorator');
@@ -162,37 +163,56 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
   me.elem.insertBefore(urlTextbox, me.elem.firstChild);
   urlTextbox.className = 'qed-toolbar-link';
   urlTextbox.style.display = 'none';
+
+  // Helper function to restore selection
+  urlTextbox.restoreSelection = function() {
+    util.assert(me.urlTextbox.range, "Restoring selection with no selection to restore");
+
+    range = me.urlTextbox.range;
+
+    // Set browsers selection back on what it was before
+    me.editor.selection().setEndpoints(range.anchor, range.focus);
+
+  }
+  // Helper function to hide urlTextbox
+  urlTextbox.hide = function() {
+    // Clear the url value
+    me.urlTextbox.value = '';
+    // Remove textbox
+    me.urlTextbox.style.display = 'none';
+    // Show buttons
+    me.buttonContainer.style.display = 'block';
+  }
+
   me.urlTextbox = urlTextbox;
   me.urlTextbox.onkeyup = function(e) {
 
-    if (e.keyCode === 13) {
+    if (e.keyCode === keycodes.codes.ENTER) {
+      me.urlTextbox.restoreSelection();
 
-      range = me.urlTextbox.range;
+      // If link is empty, remove link in selection, otherwise add content as a link
+      if (me.urlTextbox.value.length === 0) {
+        document.execCommand('unlink', false, false);
+      } else {
+        // We check for "://" to test for a specified protocol, if none is
+        // specified then we'll default to http://. This is to avoid the default
+        // behaviour of createLink to append the value to the current location
+        // We overwrite this behaviour specifically for any mailto: or tel: links
+        if (me.urlTextbox.value.indexOf('://') < 0 && me.urlTextbox.value.indexOf('mailto:') !== 0 && me.urlTextbox.value.indexOf('tel:') !== 0) {
+          me.urlTextbox.value = 'http://' + me.urlTextbox.value;
+        }
 
-      // Set browsers selection back on what it was before
-      me.editor.selection().setEndpoints(range.anchor, range.focus);
-
-      // We check for "://" to test for a specified protocol, if none is
-      // specified then we'll default to http://. This is to avoid the default
-      // behaviour of createLink to append the value to the current location
-      // We overwrite this behaviour specifically for any mailto: or tel: links
-      if (urlTextbox.value.indexOf('://') < 0 && urlTextbox.value.indexOf('mailto:') !== 0 && urlTextbox.value.indexOf('tel:') !== 0) {
-        urlTextbox.value = 'http://' + urlTextbox.value;
+        // Add link to selection
+        document.execCommand('createLink', false, me.urlTextbox.value);
       }
 
-      // Add link to selection
-      document.execCommand('createLink', false, urlTextbox.value);
-
-      // Clear the url value
-      urlTextbox.value = '';
-
-      // Remove textbox
-      me.urlTextbox.style.display = 'none';
-
-      // Show buttons
-      me.buttonContainer.style.display = 'block';
+      me.urlTextbox.hide();
 
       return true;
+
+    } else if (e.keyCode === keycodes.codes.ESC) {
+      me.urlTextbox.restoreSelection();
+      me.urlTextbox.hide();
     }
 
     return;
@@ -208,11 +228,16 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
 
   var linkCallback = function(editor, toggle) {
 
+    me.urlTextbox.value = getHrefFromCurrentSelection(editor);
+
     // Hide buttons
     me.buttonContainer.style.display = 'none';
 
     // Show textbox
     me.urlTextbox.style.display = 'inline';
+
+    // Set width
+    me.urlTextbox.style.width = me.width + 'px';
 
     // Save selection
     var range = me.editor.selection().getRange();
@@ -233,3 +258,19 @@ Toolbar.prototype.remove = function() {
 
   me.elem.parentElement.removeChild(me.elem);
 };
+
+// Grab the url if there is one (and only one) set across the selection
+// It will return the href in selection (or subset of the selection), however if there are none or
+// multiple hrefs then returns empty string
+var getHrefFromCurrentSelection = function(editor) {
+  var iDec = new InlineDecorator();
+  var styles = iDec.getRangeAttributes(editor.selection().getRange())
+
+  var href = '';
+
+  if (styles.href && styles.href.length == 1) {
+    href = styles.href[0];
+  }
+
+  return href;
+}
