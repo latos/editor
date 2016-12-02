@@ -158,13 +158,23 @@ function NativeSelection(browserSel) {
   } else if (me.sel.getRangeAt) {
     // Using Firefox caret setting methods as backup
     me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
-      var fRange = me.sel.getRangeAt(0);
-      fRange.setStart(anchorNode, anchorOffset);
-      fRange.setEnd(focusNode, focusOffset);
+      // If we already have a selection, let's just move it
+      if (me.sel.rangeCount > 0) {
+        var fRange = me.sel.getRangeAt(0);
+        fRange.setStart(anchorNode, anchorOffset);
+        fRange.setEnd(focusNode, focusOffset);
+
+      // Otherwise we need to create a range
+      } else {
+        var fRange = document.createRange();
+        fRange.setStart(anchorNode, anchorOffset);
+        fRange.setEnd(focusNode, focusOffset);
+        me.sel.addRange(fRange);
+      }
     };
   } else {
     me.setBaseAndExtent = function(anchorNode, anchorOffset, focusNode, focusOffset) {
-      assert(false, 'not implemented');
+      assert(false, 'setBaseAndExtent not implemented for this browser');
     };
   }
 
