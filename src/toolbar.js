@@ -12,6 +12,7 @@ function Toolbar(editor) {
   var me = this;
 
   me.editor = editor;
+  me.width = 0;
 
   editor.addListener({
     onSelection: function(selection) {
@@ -96,7 +97,7 @@ Toolbar.prototype.reposition = function(selection) {
 Toolbar.prototype.addButton = function(label, check, callback) {
   var me = this;
 
-  var buttonWidth = 30;
+  var buttonWidth = 50;
 
   // Create toolbar button
   var li = document.createElement("li");
