@@ -55,20 +55,36 @@ function Selection(currentElem, nativeSelection) {
 
   /** Helper function - returns true if the selection is completely within the editor elem or false
   otherwise */
+  /** TODO: check whether this function only works for parent relationships or can also include the same relationship. */
   me.withinEditor = function() {
-    if (!native.anchorNode() || !native.focusNode()) {
+    return compareWithElement(me.currentElem(), "parent");
+  };
+
+  /** Returns true if the selection is within the element or false otherwise */
+  me.withinElement = function(element) {
+    return compareWithElement(element, "same") || compareWithElement(element, "parent");
+  };
+
+  /** Returns true if the selection has the given relationship with the given element or false
+  otherwise. Available relationships are:
+    - 'parent'
+    - 'child'
+    - 'same'
+  */
+  function compareWithElement(element, relationship) {
+    if (!native.anchorNode() || !native.focusNode() || !element || !util.isElement(element)) {
       return false;
     } else {
-      var within = false;
+      var result = false;
 
       try {
-        within = util.compareNodes(me.currentElem(), native.anchorNode()) === "parent" &&
-        util.compareNodes(me.currentElem(), native.focusNode()) === "parent"
+        result = util.compareNodes(element, native.anchorNode()) === relationship &&
+        util.compareNodes(element, native.focusNode()) === relationship
       } catch (e) {
-        within = false;
+        result = false;
       }
 
-      return within;
+      return result;
     }
   };
 
