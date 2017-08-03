@@ -22,6 +22,12 @@ function Toolbar(editor) {
 
         // Do it in a timeout so it can calculate accurately.
         setTimeout(function() {
+          // Don't perform these actions if the selection is on the toolbar
+          // E.g. If we've moved the selection as part of clicking a toolbar button
+          if (selection.withinElement(me.elem)) {
+            return;
+          }
+
           me.reposition(selection);
 
           for (idx in me.actions) {
