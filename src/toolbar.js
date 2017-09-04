@@ -204,7 +204,10 @@ Toolbar.prototype.addDefaultLinkButton = function(label) {
         // specified then we'll default to http://. This is to avoid the default
         // behaviour of createLink to append the value to the current location
         // We overwrite this behaviour specifically for any mailto: or tel: links
-        if (me.urlTextbox.value.indexOf('://') < 0 && me.urlTextbox.value.indexOf('mailto:') !== 0 && me.urlTextbox.value.indexOf('tel:') !== 0) {
+        if (me.urlTextbox.value.indexOf('://') < 0 &&
+            me.urlTextbox.value.indexOf('mailto:') !== 0 &&
+            me.urlTextbox.value.indexOf('tel:') !== 0 &&
+            me.urlTextbox.value.indexOf('sms:') !== 0) {
           me.urlTextbox.value = 'http://' + me.urlTextbox.value;
         }
 
