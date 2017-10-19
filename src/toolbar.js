@@ -57,7 +57,7 @@ function Toolbar(editor) {
 
   me.elem.style.position = 'fixed';
   me.elem.style.width = me.width + 'px';
-  me.elem.style.zIndex = '1000';
+  me.elem.style.zIndex = '400';
   me.elem.style.border = '1px solid silver';
   me.elem.style.background = 'white';
   me.elem.style.boxShadow = '0px 3px 15px rgba(0,0,0,0.2)';
