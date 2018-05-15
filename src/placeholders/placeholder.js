@@ -53,6 +53,7 @@ Placeholder.prototype.reposition = function() {
   var placeCoords     = this.elem.getBoundingClientRect();
   var containerCoords = this.container.getBoundingClientRect();
 
+  // Vertical position
   var offset = 0;
   if (this.holder.firstChild) {
     var holderCoords      = this.holder.getBoundingClientRect();
@@ -61,6 +62,9 @@ Placeholder.prototype.reposition = function() {
   }
 
   this.holder.style.top = (placeCoords.top - containerCoords.top) + offset + 'px';
+
+  // Horizontal position
+  this.holder.style.left = (placeCoords.left - containerCoords.left) + 'px';
 
   return;
 };
